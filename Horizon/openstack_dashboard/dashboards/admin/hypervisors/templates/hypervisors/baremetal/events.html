@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "Node Events" %}{% endblock %}
+
+{% block main %}
+  <div id="last-event">
+      {{ lastevent_table.render }}
+  </div>
+  <div id="all-events">
+      {{ allevents_table.render }}
+  </div>
+{% endblock %}

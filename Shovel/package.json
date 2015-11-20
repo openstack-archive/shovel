@@ -1,0 +1,20 @@
+{
+  "name": "",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [
+    "swagger"
+  ],
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "connect": "^3.2.0",
+    "swagger-tools": "0.8.*",
+     "bluebird": ""
+  },
+  "devDependencies": {
+    "should": "~7.0.1",
+    "supertest": "~1.0.1"
+  }
+}
