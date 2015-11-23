@@ -16,5 +16,9 @@
   "devDependencies": {
     "should": "~7.0.1",
     "supertest": "~1.0.1"
+  },
+  "scripts" :{
+    "postinstall": "scripts/post-install.sh",
+    "start" : "start shovel"
   }
 }
