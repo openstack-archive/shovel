@@ -1,10 +1,9 @@
 # OnRack/OpenStack Coordinator (shovel)
 
-On Shovel system:
+sudo mv Shovel /var/
+cd /var/Shovel
+sudo npm install --unsafe-perm
+sudo npm start
 
-- Set monorail:httpHost, ironic:httpHost and keystone:httpHost found in ./shovel/config.json
 
-- Start shovel services: 
-
-	cd ./shovel ; nodejs index.js
 
