@@ -120,8 +120,7 @@ class BareMetalTable(tables.DataTable):
     state = tables.Column('state', verbose_name=_('State'))
     class Meta(object):
         name = "baremetal"
-        verbose_name = _("OnRack")
+        verbose_name = _("RackHD")
         table_actions = (BareMetalFilterAction,)
         multi_select = False
         row_actions = (RegisterNode, UnregisterNode,)
-
