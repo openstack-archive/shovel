@@ -73,7 +73,7 @@ class BareMetalFilterAction(tables.FilterAction):
 
 
 class BareMetalDetailsTable(tables.DataTable):
-    catalog = tables.Column("catalog", verbose_name=_("Node Catalog"), filters=[filters.linebreaksbr])
+    catalog = tables.Column("catalog", verbose_name=_("Node Catalog"), filters=[filters.safe])
     class Meta(object):
         name = "node_catalog"
         verbose_name = _("Catalog")
@@ -104,7 +104,7 @@ class BareMetalAllEventsTable(tables.DataTable):
         time = tables.Column('time',verbose_name=_("Time"))
         value = tables.Column('value',verbose_name=_("Value"))
     else:
-        html = tables.Column('html',verbose_name=_("System Events"), filters=[filters.linebreaksbr])
+        html = tables.Column('html',verbose_name=_("System Events"), filters=[filters.safe])
 
     class Meta(object):
         name = "allevents"
