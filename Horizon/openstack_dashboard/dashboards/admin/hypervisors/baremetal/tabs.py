@@ -52,7 +52,7 @@ class OnRackTab(tabs.TableTab):
         try:
             nodes = shovel.request_nodes_get()
             for n in nodes:
-                if n['type'] == 'enclosure':
+                if n['type'] in {'enclosure','switch'}:
                     continue
                 dmi = shovel.get_catalog_data_by_source(n['id'],'dmi')
                 name = dmi['System Information']['Product Name']
