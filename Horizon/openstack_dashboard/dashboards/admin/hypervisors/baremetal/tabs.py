@@ -11,7 +11,7 @@
 # under the License.
 import logging
 import json
-import requests 
+import requests
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -52,9 +52,11 @@ class OnRackTab(tabs.TableTab):
         try:
             nodes = shovel.request_nodes_get()
             for n in nodes:
+                if n['type'] == 'enclosure':
+                    continue
                 dmi = shovel.get_catalog_data_by_source(n['id'],'dmi')
                 name = dmi['System Information']['Product Name']
-                hwaddr = n['name'] 
+                hwaddr = n['name']
                 id = n['id']
                 events = '0'
                 n = self._find_ironic_node(id)
@@ -68,4 +70,3 @@ class OnRackTab(tabs.TableTab):
         except  Exception, e:
             LOG.error("Excepton in get_baremetal_data():  {0}".format(e))
             return data
-
