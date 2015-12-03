@@ -1,6 +1,8 @@
 var config = require('./../../../config.json');
 var client = require('./../../../client');
-var keystone = require('./keystone');
+var Promise = require('bluebird');
+Promise.promisifyAll(client);
+
 var pfx = config.glance.version;
 var request = {
     host: config.glance.httpHost,
@@ -11,27 +13,13 @@ var request = {
 };
 
 /*
- *  glance client object
- */
-var glanceClient = {
-    get_client: function (ret) {
-        keystone.authenticate('password', function (token) {
-            request.token = token;
-            ret(glanceWrapper);
-        });
-    }
-};
-module.exports = Object.create(glanceClient);
-
-
-/*
  * glance wrapper functions 
  */
 var glanceWrapper = {
-    get_images: function (ret) {
+    get_images: function (token) {
+        request.token = token;
         request.path = pfx + '/images';
-        client.Get(request, function (images) {
-            ret(images);
-        });
+        return client.GetAsync(request);
     }
 };
+module.exports = Object.create(glanceWrapper);

@@ -20,8 +20,11 @@ var HttpClient = {
             response.on('data', function(chunk) {
                 body += chunk;
             });
+            response.on('error', function (err) {
+                output(err);
+            });
             response.on('end', function() {
-                output(body);
+                output(null, body);
             });
         };
         
@@ -61,8 +64,11 @@ var HttpClient = {
             response.on('data', function(chunk) {
                 body += chunk;
             });
+            response.on('error', function (err) {
+                output(err);
+            });
             response.on('end', function() {
-                output(body);
+                output(null,body);
             });            
         };
         
@@ -103,8 +109,11 @@ var HttpClient = {
             response.on('data', function(chunk) {
                 body += chunk;
             });
+            response.on('error', function (err) {
+                output(err);
+            });
             response.on('end', function() {
-                output(body);
+                output(null,body);
             });
         };
         
@@ -144,9 +153,12 @@ var HttpClient = {
             response.on('data', function(chunk) {
                 body += chunk;
             });
-            response.on('end', function() {
-                output(body);
-            });            
+            response.on('error', function (err) {
+                output(err);
+            });
+            response.on('end', function () {
+                output(null, body);
+            });
         };
         
         request = http.request(options, cb);
@@ -186,9 +198,12 @@ var HttpClient = {
             response.on('data', function(chunk) {
                 body += chunk;
             });
-            response.on('end', function() {
-                output(body);
-            });            
+            response.on('error', function (err) {
+                output(err);
+            });
+            response.on('end', function () {
+                output(null, body);
+            });
         };
                 
         request = http.request(options, cb);

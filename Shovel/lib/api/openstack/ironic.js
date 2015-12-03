@@ -1,6 +1,7 @@
 var config = require('./../../../config.json');
 var client = require('./../../../client');
-var keystone = require('./keystone');
+var Promise = require('bluebird');
+Promise.promisifyAll(client);
 var pfx = config.ironic.version;
 var request = {
     host: config.ironic.httpHost,
@@ -12,107 +13,82 @@ var request = {
 };
 
 /*
- *  Ironic client object
- */
-var ironicClient = {
-    get_client: function (ret) {
-        keystone.authenticate('password', function (token) {
-            request.token = token;
-            ret(ironicWrapper);
-        });
-    }
-};
-module.exports = Object.create(ironicClient);
-
-
-/*
  * Ironic wrapper functions 
  */
 var ironicWrapper = {
-    get_chassis: function (ret) {
+    get_chassis: function (token, ret) {
+        request.token = token;
         request.path = pfx + '/chassis';
-        client.Get(request, function (chassis) {
-            ret(chassis);
-        });
+        return client.GetAsync(request);
+
     },
-    get_chassis_by_id: function (identifier, ret) {
+    get_chassis_by_id: function (token, identifier, ret) {
+        request.token = token;
         request.path = pfx + '/chassis/' + identifier;
-        client.Get(request, function (chassis) {
-            ret(chassis);
-        });
+        return client.GetAsync(request);
     },
-    get_node_list: function (ret) {
+    get_node_list: function (token) {
+        request.token = token;
         request.path = pfx + '/nodes/detail';
-        client.Get(request, function (node) {
-            ret(node);
-        });
+        return client.GetAsync(request);
     },
-    get_node: function (identifier, ret) {
+    get_node: function (token, identifier, ret) {
+        request.token = token;
         request.path = pfx + '/nodes/' + identifier;
-        client.Get(request, function (node) {
-            ret(node);
-        });
+        return client.GetAsync(request);
     },
-    create_node: function (node, ret) {
+    create_node: function (token, node, ret) {
+        request.token = token;
         request.path = pfx + '/nodes';
         request.data = node;
-        client.Post(request, function (body) {
-            ret(body);
-        });
+        return client.PostAsync(request);
     },
-    patch_node: function (identifier, data, ret) {
+    patch_node: function (token, identifier, data, ret) {
+        request.token = token;
         request.path = pfx + '/nodes/' + identifier;
         request.data = data;
-        client.Patch(request, function (body) {
-            ret(body);
-        });
+        return client.PatchAsync(request);
     },
-    delete_node: function (identifier, ret) {
+    delete_node: function (token, identifier, ret) {
+        request.token = token;
         request.path = pfx + '/nodes/' + identifier;
-        client.Delete(request, function (body) {
-            ret(body);
-        });
+        return client.DeleteAsync(request);
     },
-    get_port_list: function (ret) {
+    get_port_list: function (token, ret) {
+        request.token = token;
         request.path = pfx + '/ports';
-        client.Get(request, function (ports) {
-            ret(ports);
-        });
+        return client.GetAsync(request);
     },
-    get_port: function (identifier, ret) {
+    get_port: function (token, identifier, ret) {
+        request.token = token;
         request.path = pfx + '/ports/' + identifier;
-        client.Get(request, function (port) {
-            ret(port);
-        });
+        return client.GetAsync(request);;
     },
-    create_port: function (port, ret) {
+    create_port: function (token, port, ret) {
+        request.token = token;
         request.path = pfx + '/ports';
         request.data = port;
-        client.Post(request, function (body) {
-            ret(body);
-        });
+        return client.PostAsync(request);
     },
-    set_power_state: function (identifier, state, ret) {
+    set_power_state: function (token, identifier, state, ret) {
+        request.token = token;
         request.path = pfx + '/nodes/' + identifier + '/states/power';
         if (state === 'off' || state === 'on') {
-            request.data = { target: 'power ' + state }
+            request.data = JSON.stringify({ target: 'power ' + state });
         }
         if (state === 'reboot') {
-            request.data = { target: 'rebooting' };
+            request.data = JSON.stringify({ target: 'rebooting' });
         }
-        request.data = JSON.stringify(request.data);
-        client.Put(request, function (node) {
-            ret(node);
-        });
+        return client.PutAsync(request);
     },
-    get_driver_list: function (ret) {
+    get_driver_list: function (token, ret) {
+        request.token = token;
         request.path = pfx + '/drivers';
-        client.Get(request, function (node) {
-            ret(node);
-        });
+        return client.GetAsync(request);
     }
 };
 
+module.exports = Object.create(ironicWrapper);
 
 
 
