@@ -300,7 +300,7 @@
             "get": {
                 "x-swagger-router-controller": "Shovel",
                 "tags": [ "GET" ],
-                "operationId": "GetSELData",
+                "operationId": "getSeldata",
                 "parameters": [
                     {
                         "name": "identifier",
