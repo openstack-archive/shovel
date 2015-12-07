@@ -20,7 +20,7 @@ from horizon import forms
 from horizon import messages
 
 from openstack_dashboard import api
-from openstack_dashboard.dashboards.admin.hypervisors.baremetal import shovel
+from openstack_dashboard.dashboards.admin.rackhd import shovel
 
 LOG = logging.getLogger(__name__)
 
@@ -84,7 +84,7 @@ class RegisterForm(forms.SelfHandlingForm):
             nodes = shovel.request_nodes_get()
             self.fields['failovernode'].choices = [ (n['id'],_(n['id'])) for n in nodes if n['id'] != self._node['id'] ]
         else:
-            redirect = reverse('horizon:admin:hypervisors:index')
+            redirect = reverse('horizon:admin:rackhd:index')
             msg = 'Invalid node ID specified'
             messages.error(request, _(msg))
             raise ValueError(msg) 
@@ -107,7 +107,7 @@ class RegisterForm(forms.SelfHandlingForm):
                 messages.success(request, msg)
                 return True
         except Exception:
-            redirect = reverse('horizon:admin:hypervisors:index')
+            redirect = reverse('horizon:admin:rackhd:index')
             msg = _('Failed to register baremetal node: {0} ({1})'.format(data['uuid'], data['name']))
             messages.error(request, msg)
             return False
@@ -141,7 +141,7 @@ class UnregisterForm(forms.SelfHandlingForm):
             else:
                 raise Exception(result) 
         except Exception:
-            redirect = reverse('horizon:admin:hypervisors:index')
+            redirect = reverse('horizon:admin:rackhd:index')
             msg = _('Failed to unregister baremetal node: {0}'.format(data['uuid']))
             messages.error(request, msg)
             return False

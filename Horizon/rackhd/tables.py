@@ -27,7 +27,7 @@ class RegisterSelectedNodes(tables.LinkAction):
     verbose_name = _("Register Selected")
     icon = "plus"
     classes = ("ajax-modal",)
-    url = "horizon:admin:hypervisors:baremetal:register"
+    url = "horizon:admin:rackhd:register"
     def get_link_url(self, datum=None, *args, **kwargs):
         return reverse(self.url)
 
@@ -37,7 +37,7 @@ class UnregisterSelectedNodes(tables.LinkAction):
     verbose_name = _("Unegister Selected")
     icon = "minus"
     classes = ("ajax-modal",)
-    url = "horizon:admin:hypervisors:baremetal:unregister"
+    url = "horizon:admin:rackhd:unregister"
     def get_link_url(self, datum=None, *args, **kwargs):
         return reverse(self.url)
 
@@ -47,7 +47,7 @@ class RegisterNode(tables.LinkAction):
     verbose_name = _("Register")
     icon = "plus"
     classes = ("ajax-modal",)
-    url = "horizon:admin:hypervisors:baremetal:register"
+    url = "horizon:admin:rackhd:register"
 
 
 class Failover(tables.LinkAction):
@@ -55,7 +55,7 @@ class Failover(tables.LinkAction):
     verbose_name = _("Failover")
     icon = "minus"
     classes = ("ajax-modal",)
-    url = "horizon:admin:hypervisors:baremetal:failover"
+    url = "horizon:admin:rackhd:failover"
 
 
 class UnregisterNode(tables.LinkAction):
@@ -63,7 +63,7 @@ class UnregisterNode(tables.LinkAction):
     verbose_name = _("Unregister")
     icon = "minus"
     classes = ("ajax-modal",)
-    url = "horizon:admin:hypervisors:baremetal:unregister"
+    url = "horizon:admin:rackhd:unregister"
 
 
 class BareMetalFilterAction(tables.FilterAction):
@@ -113,14 +113,15 @@ class BareMetalAllEventsTable(tables.DataTable):
 
 
 class BareMetalTable(tables.DataTable):
-    name = tables.Column('name', verbose_name=_('Name'), link="horizon:admin:hypervisors:baremetal:detail", )
+    name = tables.Column('name', verbose_name=_('Name'), link="horizon:admin:rackhd:detail", )
     uuid = tables.Column('uuid', verbose_name=_('Node ID') )
     hwaddr = tables.Column('hwaddr', verbose_name=_('MAC Address') )
-    events = tables.Column('events', verbose_name=_('Events'), link="horizon:admin:hypervisors:baremetal:events" )
+    events = tables.Column('events', verbose_name=_('Events'), link="horizon:admin:rackhd:events" )
     state = tables.Column('state', verbose_name=_('State'))
     class Meta(object):
         name = "baremetal"
-        verbose_name = _("RackHD")
+        verbose_name = _("Baremetal Compute Nodes")
         table_actions = (BareMetalFilterAction,)
         multi_select = False
         row_actions = (RegisterNode, UnregisterNode,)
+
