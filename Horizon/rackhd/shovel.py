@@ -21,7 +21,7 @@ from horizon import exceptions
 LOG = logging.getLogger(__name__)
 
 SHOVEL_BASE_API = '/api/1.1'
-URI = "http://10.240.19.171:9005" + SHOVEL_BASE_API
+URI = SHOVEL_URL + SHOVEL_BASE_API
 
 def get_driver_list():
     r = requests.get(URI + '/ironic/drivers')
