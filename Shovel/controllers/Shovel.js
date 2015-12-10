@@ -494,10 +494,10 @@ function setConfig(keyValue,entry){
 }
 
 /*
- * @api config.json: get
- * @apiDescription get shovel config.json file and restart the server
- * @apiVersion 1.1.0
- */
+* @api config.json: get
+* @apiDescription get shovel config.json file and restart the server
+* @apiVersion 1.1.0
+*/
 module.exports.configget = function configget(req, res, next) {
     var fs = require('fs');
     var path = require('path');
