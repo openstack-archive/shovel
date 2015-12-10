@@ -11,10 +11,10 @@ var ironicConfig = config.ironic;
 var glanceConfig = config.glance;
 
 /*
- * @api {get} /api/1.1/info / GET /
- * @apiDescription get shovel information
- * @apiVersion 1.1.0
- */
+* @api {get} /api/1.1/info / GET /
+* @apiDescription get shovel information
+* @apiVersion 1.1.0
+*/
 module.exports.infoGet = function infoGet(req, res, next) {
     var info = {
         name: 'shovel',
@@ -27,10 +27,10 @@ module.exports.infoGet = function infoGet(req, res, next) {
 };
 
 /*
- * @api {get} /api/1.1/ironic/drivers / GET /
- * @apiDescription get ironic drivers
- * @apiVersion 1.1.0
- */
+* @api {get} /api/1.1/ironic/drivers / GET /
+* @apiDescription get ironic drivers
+* @apiVersion 1.1.0
+*/
 module.exports.driversGet = function driversGet(req, res, next) {
     return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
         ironicConfig.os_password).
@@ -49,10 +49,10 @@ module.exports.driversGet = function driversGet(req, res, next) {
 };
 
 /*
- * @api {get} /api/1.1/ironic/nodes / GET /
- * @apiDescription get ironic nodes
- * @apiVersion 1.1.0
- */
+* @api {get} /api/1.1/ironic/nodes / GET /
+* @apiDescription get ironic nodes
+* @apiVersion 1.1.0
+*/
 module.exports.ironicnodesGet = function ironicnodesGet(req, res, next) {
     return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
         ironicConfig.os_password).
@@ -71,10 +71,10 @@ module.exports.ironicnodesGet = function ironicnodesGet(req, res, next) {
 };
 
 /*
- * @api {get} /api/1.1/ironic/chassis / GET /
- * @apiDescription get ironic chassis
- * @apiVersion 1.1.0
- */
+* @api {get} /api/1.1/ironic/chassis / GET /
+* @apiDescription get ironic chassis
+* @apiVersion 1.1.0
+*/
 module.exports.ironicchassisGet = function ironicchassisGet(req, res, next) {
     return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
         ironicConfig.os_password).
@@ -93,10 +93,10 @@ module.exports.ironicchassisGet = function ironicchassisGet(req, res, next) {
 };
 
 /*
- * @api {get} /api/1.1/ironic/nodes / GET /
- * @apiDescription get ironic node
- * @apiVersion 1.1.0
- */
+* @api {get} /api/1.1/ironic/nodes / GET /
+* @apiDescription get ironic node
+* @apiVersion 1.1.0
+*/
 module.exports.ironicnodeGet = function ironicnodeGet(req, res, next) {
     return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
         ironicConfig.os_password).
@@ -115,10 +115,10 @@ module.exports.ironicnodeGet = function ironicnodeGet(req, res, next) {
 };
 
 /*
- * @api {patch} /api/1.1/ironic/node/identifier / PATCH /
- * @apiDescription patch ironic node info
- * @apiVersion 1.1.0
- */
+* @api {patch} /api/1.1/ironic/node/identifier / PATCH /
+* @apiDescription patch ironic node info
+* @apiVersion 1.1.0
+*/
 module.exports.ironicnodePatch = function ironicnodePatch(req, res, next) {
     return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
         ironicConfig.os_password).
@@ -136,10 +136,10 @@ module.exports.ironicnodePatch = function ironicnodePatch(req, res, next) {
 };
 
 /*
- * @api {get} /api/1.1/catalogs/identifier / GET /
- * @apiDescription get catalogs
- * @apiVersion 1.1.0
- */
+* @api {get} /api/1.1/catalogs/identifier / GET /
+* @apiDescription get catalogs
+* @apiVersion 1.1.0
+*/
 module.exports.catalogsGet = function catalogsGet(req, res, next) {
     return monorail.request_catalogs_get(req.swagger.params.identifier.value).
     then(function (catalogs) {
@@ -153,10 +153,10 @@ module.exports.catalogsGet = function catalogsGet(req, res, next) {
 };
 
 /*
- * @api {get} /api/1.1/catalogs/identifier / GET /
- * @apiDescription get catalogs by source
- * @apiVersion 1.1.0
- */
+* @api {get} /api/1.1/catalogs/identifier / GET /
+* @apiDescription get catalogs by source
+* @apiVersion 1.1.0
+*/
 module.exports.catalogsbysourceGet = function catalogsbysourceGet(req, res, next) {
     return monorail.get_catalog_data_by_source(req.swagger.params.identifier.value,
         req.swagger.params.source.value).
@@ -427,10 +427,10 @@ module.exports.configsetmono = function configsetmono(req, res, next) {
 };
 
 /*
- * @api config.json: modify shovel-keystone
- * @apiDescription modify shovel config.json file and restart the server
- * @apiVersion 1.1.0
- */
+* @api config.json: modify shovel-keystone
+* @apiDescription modify shovel config.json file and restart the server
+* @apiVersion 1.1.0
+*/
 module.exports.configsetkeystone = function configsetkeystone(req, res, next) {
     var content = setConfig('keystone',req.body);
     res.setHeader('Content-Type', 'application/json');
