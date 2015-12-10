@@ -2,7 +2,7 @@
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#      http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -12,11 +12,14 @@
 
 from django.conf.urls import patterns
 from django.conf.urls import url
+from django.conf.urls import include
 
-from openstack_dashboard.dashboards.admin.hypervisors.baremetal import views
+from openstack_dashboard.dashboards.admin.rackhd import views
+
 
 urlpatterns = patterns(
-    'openstack_dashboard.dashboards.admin.hypervisors.baremetal.views',
+    'openstack_dashboard.dashboards.admin.rackhd.views',
+    url(r'^$', views.IndexView.as_view(), name='index'),
     url(r'^(?P<baremetal>[^/]+)/register$', views.RegisterView.as_view(), name='register'),
     url(r'^(?P<baremetal>[^/]+)/unregister$', views.UnregisterView.as_view(), name='unregister'),
     url(r'^(?P<baremetal>[^/]+)/detail$', views.BareMetalDetailView.as_view(), name='detail'),

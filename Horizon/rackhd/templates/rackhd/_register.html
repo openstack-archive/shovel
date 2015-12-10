@@ -2,10 +2,10 @@
 {% load i18n %}
 {% load url from future %}
 
-{% block form_id %}unregister_form{% endblock %}
-{% block form_action %}{% url 'horizon:admin:hypervisors:baremetal:unregister' baremetal %}{% endblock %}
+{% block form_id %}register_form{% endblock %}
+{% block form_action %}{% url 'horizon:admin:rackhd:register' baremetal %}{% endblock %}
 
-{% block modal-header %}{% trans "Unregister Node" %}{% endblock %}
+{% block modal-header %}{% trans "Register Node" %}{% endblock %}
 
 {% block modal-body %}
 <div class="left">
@@ -15,11 +15,11 @@
 </div>
 <div class="right">
     <h3>{% trans "Description:" %}</h3>
-    <p>{% trans "Unegister bare metal node." %}</p>
+    <p>{% trans "Register bare metal node." %}</p>
 </div>
 {% endblock %}
 
 {% block modal-footer %}
-  <input class="btn btn-primary pull-right" type="submit" value="{% trans "Unregister Node" %}" />
+  <input class="btn btn-primary pull-right" type="submit" value="{% trans "Register Node" %}" />
   <a href="{% url 'horizon:admin:hypervisors:index' %}" class="btn btn-default secondary cancel close">{% trans "Cancel" %}</a>
 {% endblock %}
