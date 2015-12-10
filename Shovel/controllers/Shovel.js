@@ -445,7 +445,6 @@ module.exports.configsetkeystone = function configsetkeystone(req, res, next) {
 module.exports.configsetironic = function configsetironic(req, res, next) {
     var content = setConfig('ironic',req.body);
     res.setHeader('Content-Type', 'application/json');
-    var ca = JSON.stringify(content)
     res.end(JSON.stringify(content));
 };
 
@@ -521,7 +520,8 @@ module.exports.configget = function configget(req, res, next) {
 * @apiDescription get glance images
 */
 module.exports.imagesGet = function imagesGet(req, res, next) {
-    return keystone.authenticatePassword(glanceConfig.os_tenant_name,glanceConfig.os_username, glanceConfig.os_password  ).
+    return keystone.authenticatePassword(glanceConfig.os_tenant_name,glanceConfig.os_username,
+        glanceConfig.os_password  ).
     then(function (token) {
         token = JSON.parse(token).access.token.id;
         return glance.get_images(token);
