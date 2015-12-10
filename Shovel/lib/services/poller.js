@@ -2,9 +2,10 @@ var monorail = require('./../api/monorail/monorail');
 var ironic = require('./../api/openstack/ironic');
 var keystone = require('./../api/openstack/keystone');
 var _ = require('underscore');
+var config = require('./../../config.json');
 
 module.exports = Poller;
-
+var ironicConfig = config.ironic;
 function Poller(timeInterval) {
     this._timeInterval = timeInterval;
     this._ironicToken = null;
@@ -12,7 +13,7 @@ function Poller(timeInterval) {
 
     Poller.prototype.getToken = function () {
         var self = this;
-        return keystone.authenticate('password').
+        return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username, ironicConfig.os_password).
         then(function (token) {
             self._ironicToken = token = JSON.parse(token).access.token.id;
             return token;

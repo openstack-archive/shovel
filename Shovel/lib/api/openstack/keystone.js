@@ -4,8 +4,37 @@ var client = require('./../../../client');
 var Promise = require('bluebird');
 Promise.promisifyAll(client);
 
+var request = {
+    host: config.keystone.httpHost,
+    path: '/' + config.keystone.version + '/tokens',
+    port: config.keystone.httpPort,
+    token: '',
+    data: {},
+    api: {},
+    useragent: ''
+};
+
 var KeystoneAuthentication = {
-    authenticate: function (authType) {
+
+
+    authenticatePassword: function (tenantName, username, password) {
+
+
+        request.data = JSON.stringify(
+            {
+                'auth': {
+                    'tenantName': tenantName,
+                    'passwordCredentials': {
+                        'username': username,
+                        'password': password
+                    }
+                }
+            });
+
+
+        return (client.PostAsync(request));
+    },
+    authenticateToken: function (tenantName, username, token) {
         var request = {
             host: config.keystone.httpHost,
             path: '/' + config.keystone.version + '/tokens',
@@ -15,30 +44,19 @@ var KeystoneAuthentication = {
             api: {},
             useragent: ''
         };
-        if (authType == 'password') {
-            request.data = JSON.stringify(
-                {
-                    'auth': {
-                        'tenantName': config.ironic.os_tenant_name,
-                        'passwordCredentials': {
-                            'username': config.ironic.os_username,
-                            'password': config.ironic.os_password
-                        }
+
+        request.data = JSON.stringify(
+            {
+                "auth": {
+                    "tenantName": tenantName,
+                    "token": {
+                        "id": token
                     }
-                });
-        };
-        if (authType == 'token') {
-            request.data = JSON.stringify(
-                {
-                    "auth": {
-                        "tenantName": config.ironic.os_tenant_name,
-                        "token": {
-                            "id": config.ironic.os_auth_token
-                        }
-                    }
-                });
-        };
+                }
+            });
+
         return (client.PostAsync(request));
     }
+
 };
 module.exports = Object.create(KeystoneAuthentication);
