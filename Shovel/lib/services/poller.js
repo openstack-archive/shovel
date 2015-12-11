@@ -13,7 +13,8 @@ function Poller(timeInterval) {
 
     Poller.prototype.getToken = function () {
         var self = this;
-        return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username, ironicConfig.os_password).
+        return keystone.authenticatePassword(ironicConfig.os_tenant_name,
+            ironicConfig.os_username,ironicConfig.os_password).
         then(function (token) {
             self._ironicToken = token = JSON.parse(token).access.token.id;
             return token;

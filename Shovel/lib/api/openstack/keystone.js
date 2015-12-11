@@ -15,11 +15,7 @@ var request = {
 };
 
 var KeystoneAuthentication = {
-
-
     authenticatePassword: function (tenantName, username, password) {
-
-
         request.data = JSON.stringify(
             {
                 'auth': {
@@ -30,10 +26,9 @@ var KeystoneAuthentication = {
                     }
                 }
             });
-
-
         return (client.PostAsync(request));
     },
+
     authenticateToken: function (tenantName, username, token) {
         var request = {
             host: config.keystone.httpHost,
@@ -44,7 +39,6 @@ var KeystoneAuthentication = {
             api: {},
             useragent: ''
         };
-
         request.data = JSON.stringify(
             {
                 "auth": {
@@ -54,9 +48,3 @@ var KeystoneAuthentication = {
                     }
                 }
             });
-
-        return (client.PostAsync(request));
-    }
-
-};
-module.exports = Object.create(KeystoneAuthentication);
