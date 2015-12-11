@@ -21,7 +21,8 @@
     "sinon-chai": "^2.7.0",
     "supertest": "^0.15.0",
     "underscore":  "^1.8.3",
-    "xunit-file": "0.0.6"
+    "xunit-file": "0.0.6",
+    "winston":  "2.1.1"
   },
   "scripts" :{
     "postinstall": "scripts/post-install.sh",

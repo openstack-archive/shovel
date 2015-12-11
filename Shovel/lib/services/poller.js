@@ -3,6 +3,7 @@ var ironic = require('./../api/openstack/ironic');
 var keystone = require('./../api/openstack/keystone');
 var _ = require('underscore');
 var config = require('./../../config.json');
+var logger = require('./logger').Logger;
 
 module.exports = Poller;
 var ironicConfig = config.ironic;
@@ -18,18 +19,27 @@ function Poller(timeInterval) {
         then(function (token) {
             self._ironicToken = token = JSON.parse(token).access.token.id;
             return token;
+        })
+        .catch(function (err) {
+            logger.error(err);
+            return null;
         });
     };
 
     Poller.prototype.stopServer = function () {
-        clearInterval(this.timeObj);
-        this.timeObj = 0;
+        try{
+            clearInterval(this.timeObj);
+            this.timeObj = 0;
+        }
+        catch(err){
+            logger.error(err);
+        }
     };
 
     Poller.prototype.runPoller = function (ironic_nodes) {
         var self = this;
         for (var i in ironic_nodes) {
-            console.log('Running poller on :' + ironic_nodes[i].uuid + ':');
+            logger.info('Running poller on :' + ironic_nodes[i].uuid + ':');
             self.searchIronic(ironic_nodes[i]);
         }
     };
@@ -63,6 +73,10 @@ function Poller(timeInterval) {
                     }
                 }
             }
+        })
+        .catch(function (err) {
+            logger.error(err);
+            return null;
         });
     };
 
@@ -70,6 +84,10 @@ function Poller(timeInterval) {
         return ironic.get_node_list(token).
         then(function (result) {
             return (JSON.parse(result).nodes);
+        })
+        .catch(function (err) {
+            logger.error(err);
+            return null;
         });
     };
 
@@ -81,6 +99,10 @@ function Poller(timeInterval) {
             if (result != undefined) {
                 return result.extra;
             }
+            return null;
+        })
+        .catch(function (err) {
+            logger.error(err);
             return null;
         });
     };
@@ -97,7 +119,7 @@ function Poller(timeInterval) {
                         var arr = result[0].sel;
                         var events = _.where(arr, { event: node_data.extra.eventre });
                         if (events != undefined) {
-                            console.log(events);
+                            logger.info(events);
                             node_data.extra.eventcnt = events.length;
                             lastEvent = events[events.length - 1];
                         }
@@ -110,6 +132,10 @@ function Poller(timeInterval) {
             node_data.extra.events = lastEvent;
             var data = [{ 'path': '/extra', 'value': node_data.extra, 'op': 'replace' }];
             return data;
+        })
+        .catch(function (err) {
+            logger.error(err);
+            return null;
         });
     }
 
@@ -123,6 +149,9 @@ function Poller(timeInterval) {
                         return monorail.request_poller_data_get(pollers[i]['id']).
                         then(function (data) {
                             return (data);
+                        })
+                        .catch(function (e) {
+                            logger.error(e);
                         });
                     }
                 }
@@ -131,6 +160,10 @@ function Poller(timeInterval) {
             else {
                 return (null);
             }
+        })
+        .catch(function (err) {
+            logger.error(err);
+            return (null);
         });
     }
 
@@ -138,12 +171,17 @@ function Poller(timeInterval) {
         var self = this;
         return self.getToken().
         then(function (token) {
-            self._timeObj = setInterval(function () {
-                return self.getNodes(token).
-                then(function (ironic_nodes) {
-                    return self.runPoller(ironic_nodes);
-                });
-            }, self._timeInterval);
+            try {
+                self._timeObj = setInterval(function () {
+                    return self.getNodes(token).
+                    then(function (ironic_nodes) {
+                        return self.runPoller(ironic_nodes);
+                    });
+                }, self._timeInterval);
+            }
+            catch (err) {
+                logger.error(err);
+            };
         });
     };
 }
