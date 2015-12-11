@@ -7,6 +7,9 @@ var config = require('./../config.json');
 var glance = require('./../lib/api/openstack/glance');
 var keystone = require('./../lib/api/openstack/keystone');
 
+var ironicConfig = config.ironic;
+var glanceConfig = config.glance;
+
 /*
 * @api {get} /api/1.1/info / GET /
 * @apiDescription get shovel information
@@ -29,7 +32,8 @@ module.exports.infoGet = function infoGet(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.driversGet = function driversGet(req, res, next) {
-    return keystone.authenticate('password').
+    return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
+        ironicConfig.os_password).
     then(function (token) {
         token = JSON.parse(token).access.token.id;
         return ironic.get_driver_list(token);
@@ -50,7 +54,8 @@ module.exports.driversGet = function driversGet(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.ironicnodesGet = function ironicnodesGet(req, res, next) {
-    return keystone.authenticate('password').
+    return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
+        ironicConfig.os_password).
     then(function (token) {
         token = JSON.parse(token).access.token.id;
         return ironic.get_node_list(token);
@@ -71,7 +76,8 @@ module.exports.ironicnodesGet = function ironicnodesGet(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.ironicchassisGet = function ironicchassisGet(req, res, next) {
-    return keystone.authenticate('password').
+    return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
+        ironicConfig.os_password).
     then(function (token) {
         token = JSON.parse(token).access.token.id;
         return ironic.get_chassis_by_id(token, req.swagger.params.identifier.value);
@@ -92,7 +98,8 @@ module.exports.ironicchassisGet = function ironicchassisGet(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.ironicnodeGet = function ironicnodeGet(req, res, next) {
-    return keystone.authenticate('password').
+    return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
+        ironicConfig.os_password).
     then(function (token) {
         token = JSON.parse(token).access.token.id;
         return ironic.get_nodeAsync(token, req.swagger.params.identifier.value);
@@ -113,7 +120,8 @@ module.exports.ironicnodeGet = function ironicnodeGet(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.ironicnodePatch = function ironicnodePatch(req, res, next) {
-    return keystone.authenticate('password').
+    return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
+        ironicConfig.os_password).
     then(function (token) {
         token = JSON.parse(token).access.token.id;
         var data = JSON.stringify(req.body);
@@ -150,7 +158,8 @@ module.exports.catalogsGet = function catalogsGet(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.catalogsbysourceGet = function catalogsbysourceGet(req, res, next) {
-    return monorail.get_catalog_data_by_source(req.swagger.params.identifier.value, req.swagger.params.source.value).
+    return monorail.get_catalog_data_by_source(req.swagger.params.identifier.value,
+        req.swagger.params.source.value).
     then(function (catalogs) {
         if (typeof catalogs !== 'undefined') {
             res.setHeader('Content-Type', 'application/json');
@@ -221,7 +230,7 @@ module.exports.getSeldata = function getSeldata(req, res, next) {
     });
 };
 
-/* 
+/*
 * @api register: node
 * @apiDescription register a node in Ironic
 * @apiVersion 1.1.0
@@ -311,7 +320,8 @@ module.exports.registerpost = function registerpost(req, res, next) {
             };
         });
     }).then(function () {
-        return (keystone.authenticate('password'));
+        return (keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
+            ironicConfig.os_password));
     }).
     then(function (token) {
         ironicToken = JSON.parse(token).access.token.id;
@@ -362,13 +372,14 @@ module.exports.registerpost = function registerpost(req, res, next) {
         res.end(err);
     });
 };
-/* 
+/*
 * @api unregister: node
 * @apiDescription unregister a node from Ironic
 * @apiVersion 1.1.0
 */
 module.exports.unregisterdel = function unregisterdel(req, res, next) {
-    return keystone.authenticate('password').
+    return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
+        ironicConfig.os_password).
     then(function (token) {
         token = JSON.parse(token).access.token.id;;
         return ironic.delete_node(token, req.swagger.params.identifier.value);
@@ -401,10 +412,10 @@ module.exports.unregisterdel = function unregisterdel(req, res, next) {
     catch(function(err){
         res.end(err);
     });
-                
+
 };
 
-/* 
+/*
 * @api config.json: modify shovel-monorail
 * @apiDescription modify shovel config.json file and restart the server
 * @apiVersion 1.1.0
@@ -415,7 +426,7 @@ module.exports.configsetmono = function configsetmono(req, res, next) {
     res.end(JSON.stringify(content));
 };
 
-/* 
+/*
 * @api config.json: modify shovel-keystone
 * @apiDescription modify shovel config.json file and restart the server
 * @apiVersion 1.1.0
@@ -423,21 +434,21 @@ module.exports.configsetmono = function configsetmono(req, res, next) {
 module.exports.configsetkeystone = function configsetkeystone(req, res, next) {
     var content = setConfig('keystone',req.body);
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(content));   
+    res.end(JSON.stringify(content));
 };
 
-/* 
+/*
 * @api config.json: modify shovel-ironic
 * @apiDescription modify shovel config.json file and restart the server
 * @apiVersion 1.1.0
 */
-module.exports.configsetironic = function configsetironic(req, res, next) {    
+module.exports.configsetironic = function configsetironic(req, res, next) {
     var content = setConfig('ironic',req.body);
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(content));
 };
 
-/* 
+/*
 * @api config.json: modify shovel-glance
 * @apiDescription modify shovel config.json file and restart the server
 * @apiVersion 1.1.0
@@ -448,7 +459,7 @@ module.exports.configsetglance = function configsetglance(req, res, next) {
     res.end(JSON.stringify(content));
 };
 
-/* 
+/*
 * @api config.json: modify
 * @apiDescription modify shovel config.json file and restart the server
 * @apiVersion 1.1.0
@@ -479,7 +490,7 @@ function setConfig(keyValue,entry){
     }
     if (is_changed) {
         if(keyValue != null){
-            output[keyValue] = content;           
+            output[keyValue] = content;
         }
         else{
             output = content;
@@ -489,7 +500,7 @@ function setConfig(keyValue,entry){
     return content
 }
 
-/* 
+/*
 * @api config.json: get
 * @apiDescription get shovel config.json file and restart the server
 * @apiVersion 1.1.0
@@ -509,7 +520,8 @@ module.exports.configget = function configget(req, res, next) {
 * @apiDescription get glance images
 */
 module.exports.imagesGet = function imagesGet(req, res, next) {
-    return keystone.authenticate('password').
+    return keystone.authenticatePassword(glanceConfig.os_tenant_name,glanceConfig.os_username,
+        glanceConfig.os_password  ).
     then(function (token) {
         token = JSON.parse(token).access.token.id;
         return glance.get_images(token);
