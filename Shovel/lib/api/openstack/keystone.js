@@ -29,8 +29,7 @@ var KeystoneAuthentication = {
                     }
                 }
             });
-        console.log ("the password is :", password);
-        console.log ("the password is :", decrypted);
+
         return (client.PostAsync(request));
     },
 
