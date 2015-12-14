@@ -21,7 +21,8 @@ var HttpClient = {
                 body += chunk;
             });
             response.on('error', function (err) {
-                output(err);
+                var errorMessage = { errorMessage: { hostname: msg.host, message: err } };
+                output(errorMessage);
             });
             response.on('end', function() {
                 output(null, body);
@@ -30,8 +31,8 @@ var HttpClient = {
         
         request = http.request(options, cb);
         request.on('error', function(e) {
-            console.log("Error: " + msg.host + "\n" + e.message); 
-            console.log(e.stack);
+            var errorMessage = { errorMessage: { hostname: msg.host, message: e } };
+            output(errorMessage);
         });
         
         request.end();
@@ -65,7 +66,8 @@ var HttpClient = {
                 body += chunk;
             });
             response.on('error', function (err) {
-                output(err);
+                var errorMessage = { errorMessage: { hostname: msg.host, message: e } };
+                output(errorMessage);
             });
             response.on('end', function() {
                 output(null,body);
@@ -74,8 +76,8 @@ var HttpClient = {
         
         request = http.request(options, cb);
         request.on('error', function(e) {
-            console.log("Error: " + msg.host + "\n" + e.message); 
-            console.log(e.stack);
+            var errorMessage = { errorMessage: { hostname: msg.host, message: e } };
+            output(errorMessage);
         });
             
         if( Buffer.byteLength(msg.data) )
@@ -110,7 +112,8 @@ var HttpClient = {
                 body += chunk;
             });
             response.on('error', function (err) {
-                output(err);
+                var errorMessage = { errorMessage: { hostname: msg.host, message: err } };
+                output(errorMessage);
             });
             response.on('end', function() {
                 output(null,body);
@@ -119,8 +122,8 @@ var HttpClient = {
         
         request = http.request(options, cb);
         request.on('error', function(e) {
-            console.log("Error: " + msg.host + "\n" + e.message); 
-            console.log(e.stack);
+            var errorMessage = { errorMessage: { hostname: msg.host, message: e } };
+            output(errorMessage);
         });
         
         request.end();
@@ -154,7 +157,8 @@ var HttpClient = {
                 body += chunk;
             });
             response.on('error', function (err) {
-                output(err);
+                var errorMessage = { errorMessage: { hostname: msg.host, message: err } };
+                output(errorMessage);
             });
             response.on('end', function () {
                 output(null, body);
@@ -163,8 +167,8 @@ var HttpClient = {
         
         request = http.request(options, cb);
         request.on('error', function(e) {
-            console.log("Error: " + msg.host + "\n" + e.message); 
-            console.log(e.stack);
+            var errorMessage = { errorMessage: { hostname: msg.host, message: e } };
+            output(errorMessage);
         });
             
         request.write(msg.data);
@@ -199,7 +203,8 @@ var HttpClient = {
                 body += chunk;
             });
             response.on('error', function (err) {
-                output(err);
+                var errorMessage = { errorMessage: { hostname: msg.host, message: err } };
+                output(errorMessage);
             });
             response.on('end', function () {
                 output(null, body);
@@ -208,8 +213,8 @@ var HttpClient = {
                 
         request = http.request(options, cb);
         request.on('error', function(e) {
-            console.log("Error: " + msg.host + "\n" + e.message); 
-            console.log(e.stack);
+            var errorMessage = { errorMessage: { hostname: msg.host, message: e } };
+            output(errorMessage);
         });
             
         if( Buffer.byteLength(msg.data) )

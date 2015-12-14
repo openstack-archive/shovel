@@ -6,6 +6,7 @@ var ironic = require('./../lib/api/openstack/ironic');
 var config = require('./../config.json');
 var glance = require('./../lib/api/openstack/glance');
 var keystone = require('./../lib/api/openstack/keystone');
+var logger = require('./../lib/services/logger').Logger;
 
 var ironicConfig = config.ironic;
 var glanceConfig = config.glance;
@@ -45,6 +46,11 @@ module.exports.driversGet = function driversGet(req, res, next) {
         }
         else
             res.end();
+    })
+    .catch(function(err){
+        logger.error({message:err,path:req.url});
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
     });
 };
 
@@ -67,6 +73,11 @@ module.exports.ironicnodesGet = function ironicnodesGet(req, res, next) {
         }
         else
             res.end();
+    })
+    .catch(function(err){
+        logger.error({message:err,path:req.url});
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
     });
 };
 
@@ -89,6 +100,11 @@ module.exports.ironicchassisGet = function ironicchassisGet(req, res, next) {
         }
         else
             res.end();
+    })
+    .catch(function(err){
+        logger.error({message:err,path:req.url});
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
     });
 };
 
@@ -111,6 +127,11 @@ module.exports.ironicnodeGet = function ironicnodeGet(req, res, next) {
         }
         else
             res.end();
+    })
+    .catch(function(err){
+        logger.error({message:err,path:req.url});
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
     });
 };
 
@@ -132,6 +153,11 @@ module.exports.ironicnodePatch = function ironicnodePatch(req, res, next) {
             res.setHeader('Content-Type', 'application/json');
             res.end(result);
         }
+    })
+    .catch(function(err){
+        logger.error({message:err,path:req.url});
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
     });
 };
 
@@ -149,6 +175,11 @@ module.exports.catalogsGet = function catalogsGet(req, res, next) {
         }
         else
             res.end();
+    })
+    .catch(function(err){
+        logger.error({message:err,path:req.url});
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
     });
 };
 
@@ -167,6 +198,11 @@ module.exports.catalogsbysourceGet = function catalogsbysourceGet(req, res, next
         }
         else
             res.end();
+    })
+    .catch(function(err){
+        logger.error({message:err,path:req.url});
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
     });
 };
 
@@ -184,6 +220,11 @@ module.exports.nodeGet = function nodeGet(req, res, next) {
         }
         else
             res.end();
+    })
+    .catch(function(err){
+        logger.error({message:err,path:req.url});
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
     });
 };
 
@@ -201,6 +242,11 @@ module.exports.nodesGet = function nodesGet(req, res, next) {
         }
         else
             res.end();
+    })
+    .catch(function(err){
+        logger.error({message:err,path:req.url});
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
     });
 };
 
@@ -227,6 +273,11 @@ module.exports.getSeldata = function getSeldata(req, res, next) {
         else {
             res.end();
         }
+    })
+    .catch(function(err){
+        logger.error({message:err,path:req.url});
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
     });
 };
 
@@ -296,7 +347,7 @@ module.exports.registerpost = function registerpost(req, res, next) {
                     var memory_device = dmi.data['Memory Device'];
                     for (var elem in memory_device) {
                         var item = memory_device[elem];
-                        //console.log(item['Size']);
+                        //logger.info(item['Size']);
                         if (item['Size'].indexOf('GB') > -1) {
                             dmi_total += parseFloat(item['Size'].replace('GB', '').trim()) * 1000;
                         }
@@ -328,7 +379,7 @@ module.exports.registerpost = function registerpost(req, res, next) {
         return ironic.create_node(ironicToken, JSON.stringify(node));
     }).
     then(function (ret) {
-        console.log('\r\ncreate node:\r\n' + ret);
+        logger.info('\r\ncreate node:\r\n' + ret);
         if (ret && JSON.parse(ret).error_message) {
             res.setHeader('Content-Type', 'application/json');
             res.end(ret);
@@ -338,11 +389,11 @@ module.exports.registerpost = function registerpost(req, res, next) {
         return ironic.create_port(ironicToken, JSON.stringify(port));
     }).
     then(function (create_port) {
-        console.log('\r\nCreate port:\r\n' + JSON.stringify(create_port));
+        logger.info('\r\nCreate port:\r\n' + JSON.stringify(create_port));
         return ironic.set_power_state(ironicToken, ironic_node.uuid, "on");
     }).
     then(function (pwr_state) {
-        console.log('\r\npwr_state: on');
+        logger.info('\r\npwr_state: on');
         if (pwr_state && JSON.parse(pwr_state).error_message) {
             console.error(JSON.parse(pwr_state).error_message);
             res.setHeader('Content-Type', 'application/json');
@@ -359,17 +410,19 @@ module.exports.registerpost = function registerpost(req, res, next) {
         return ironic.patch_node(ironicToken, ironic_node.uuid, JSON.stringify(data));
     }).
     then(function (result) {
-        console.log('\r\patched node:\r\n' + result);
+        logger.info('\r\patched node:\r\n' + result);
     }).then(function () {
         return monorail.request_whitelist_set(user_entry.port)
     }).
     then(function (whitelist) {
-        console.log('\r\nmonorail whitelist:\r\n' + JSON.stringify(whitelist));
+        logger.info('\r\nmonorail whitelist:\r\n' + JSON.stringify(whitelist));
         res.setHeader('Content-Type', 'application/json');
         res.end(whitelist);
-    }).
-    catch(function(err){
-        res.end(err);
+    })
+    .catch(function(err){
+        logger.error({message:err,path:req.url});
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
     });
 };
 /*
@@ -386,7 +439,7 @@ module.exports.unregisterdel = function unregisterdel(req, res, next) {
     }).
     then(function (del_node) {
         if (del_node && JSON.parse(del_node).error_message) {
-            console.log(del_node);
+            logger.info(del_node);
             res.setHeader('Content-Type', 'application/json');
             res.end(del_node);
             return;
@@ -395,7 +448,7 @@ module.exports.unregisterdel = function unregisterdel(req, res, next) {
     }).
     then(function (onrack_node) {
         if (onrack_node && !JSON.parse(onrack_node).name) {
-            console.log(onrack_node);
+            logger.info(onrack_node);
             res.setHeader('Content-Type', 'application/json');
             res.end(onrack_node);
             return;
@@ -408,9 +461,11 @@ module.exports.unregisterdel = function unregisterdel(req, res, next) {
             result: 'success'
         };
         res.end(JSON.stringify(success));
-    }).
-    catch(function(err){
-        res.end(err);
+    })
+    .catch(function (err) {
+        logger.error({ message: err, path: req.url });
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
     });
 
 };
@@ -471,32 +526,39 @@ module.exports.configset = function configset(req, res, next) {
 };
 
 function setConfig(keyValue,entry){
-    var fs = require('fs');
-    var path = require('path');
-    var is_changed = false;
-    var appDir = path.dirname(require.main.filename);
-    var file_content = fs.readFileSync(appDir + '/config.json');
-    var output = JSON.parse(file_content);
-    var content = (keyValue == null)? output: output[keyValue];
-    console.log(content);
-    for (var initem in Object.keys(entry)) {
-        for (var orgitem in Object.keys(content)) {
-            if (Object.keys(entry)[initem] == Object.keys(content)[orgitem]) {
-                var key = Object.keys(content)[orgitem];
-                content[key] = entry[key];
-                is_changed = true;
+    try {
+        var fs = require('fs');
+        var path = require('path');
+        var is_changed = false;
+        var appDir = path.dirname(require.main.filename);
+        var file_content = fs.readFileSync(appDir + '/config.json');
+        var output = JSON.parse(file_content);
+        var content = (keyValue == null) ? output : output[keyValue];
+        logger.info(content);
+        for (var initem in Object.keys(entry)) {
+            for (var orgitem in Object.keys(content)) {
+                if (Object.keys(entry)[initem] == Object.keys(content)[orgitem]) {
+                    var key = Object.keys(content)[orgitem];
+                    content[key] = entry[key];
+                    is_changed = true;
+                }
             }
         }
-    }
-    if (is_changed) {
-        if(keyValue != null){
-            output[keyValue] = content;
+        if (is_changed) {
+            if (keyValue != null) {
+                output[keyValue] = content;
+            }
+            else {
+                output = content;
+            }
+            fs.writeFileSync(appDir + '/config.json', JSON.stringify(output));
         }
-        else{
-            output = content;
-        }
-        fs.writeFileSync(appDir + '/config.json', JSON.stringify(output));
     }
+    catch (err) {
+        logger.error(err);
+        return err;
+    }
+    logger.info(content);
     return content
 }
 
@@ -533,5 +595,10 @@ module.exports.imagesGet = function imagesGet(req, res, next) {
         }
         else
             res.end();
+    })
+    .catch(function (err) {
+        logger.error({ message: err, path: req.url });
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(err));
     });
 };
