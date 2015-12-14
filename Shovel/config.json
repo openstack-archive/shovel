@@ -43,6 +43,6 @@
     "os_tenant_name": "admin",
     "os_auth_token": "None",
     "insecure": "False"
-  }
-,"key":"Random-Key"
+  },
+  "key":"Random-Key"
 }
