@@ -22,7 +22,9 @@
     "supertest": "^0.15.0",
     "underscore":  "^1.8.3",
     "xunit-file": "0.0.6",
-    "winston":  "2.1.1"
+    "winston":  "2.1.1",
+    "jsonfile": "2.2.3",
+    "crypto":  "0.0.3" 
   },
   "scripts" :{
     "postinstall": "scripts/post-install.sh",

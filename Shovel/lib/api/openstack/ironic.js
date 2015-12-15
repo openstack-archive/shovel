@@ -1,5 +1,5 @@
 var config = require('./../../../config.json');
-var client = require('./../../../client');
+var client = require('./../client');
 var Promise = require('bluebird');
 Promise.promisifyAll(client);
 var pfx = config.ironic.version;

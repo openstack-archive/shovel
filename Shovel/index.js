@@ -6,7 +6,7 @@ var http = require('http');
 var swaggerTools = require('swagger-tools');
 var config = require('./config.json');
 var Poller = require('./lib/services/poller');
-var serverPort = config.httpPort;
+var serverPort = config.shovel.httpPort;
 
 // swaggerRouter configuration
 var options = {
@@ -33,9 +33,9 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
   app.use(middleware.swaggerUi());
 
   // Start the server
-  http.createServer(app).listen(config.httpPort, config.hostname, function () {      
-      console.log('Your server is listening on port %d ', config.httpPort);
-      console.log('Swagger-ui is available on http://%s:%d/docs', config.hostname, config.httpPort);
+  http.createServer(app).listen(config.shovel.httpPort, config.shovel.hostname, function () {
+      console.log('Your server is listening on port %d ', config.shovel.httpPort);
+      console.log('Swagger-ui is available on http://%s:%d/docs', config.shovel.hostname, config.shovel.httpPort);
       var pollerInstance = new Poller(5000);//timeInterval to 5s
       pollerInstance.startServer();
   });

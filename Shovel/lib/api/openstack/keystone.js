@@ -1,9 +1,11 @@
 /* keystone authentication */
 var config = require('./../../../config.json');
-var client = require('./../../../client');
+var client = require('./../client');
 var Promise = require('bluebird');
+var encryption = require('./../../services/encryption');
+var logger = require('./../../services/logger').Logger;
+
 Promise.promisifyAll(client);
-var encryption = require('./../../../controllers/encryption');
 
 var request = {
     host: config.keystone.httpHost,
@@ -17,7 +19,15 @@ var request = {
 
 var KeystoneAuthentication = {
     authenticatePassword: function (tenantName, username, password) {
-        var decrypted = encryption.decrypt(password, 'random-key', 'aes-256-cbc', 'utf8', 'base64');
+        var decrypted;
+        try {
+            decrypted = encryption.decrypt(password);
+        }
+        catch (err) {
+            logger.error(err);
+            //return empty promise
+            return (Promise.resolve());
+        };
         request.data = JSON.stringify(
             {
                 'auth': {
@@ -29,7 +39,6 @@ var KeystoneAuthentication = {
                     }
                 }
             });
-
         return (client.PostAsync(request));
     },
 

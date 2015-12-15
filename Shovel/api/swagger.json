@@ -550,26 +550,9 @@
         "config": {
             "type": "object",
             "properties": {
-                "http": {
-                    "type": "boolean"
-                },
                 "httpPort": {
                     "type": "integer",
                     "format": "int32"
-                },
-                "https": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "onrack": {
-            "type": "object",
-            "properties": {
-                "httpHost": {
-                    "type": "string"
-                },
-                "httpPort": {
-                    "type": "string"
                 }
             }
         },

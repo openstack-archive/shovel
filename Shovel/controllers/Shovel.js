@@ -7,7 +7,10 @@ var config = require('./../config.json');
 var glance = require('./../lib/api/openstack/glance');
 var keystone = require('./../lib/api/openstack/keystone');
 var logger = require('./../lib/services/logger').Logger;
-var encryption = require('./encryption');
+var encryption = require('./../lib/services/encryption');
+var jsonfile = require('jsonfile');
+var _ = require('underscore');
+
 var ironicConfig = config.ironic;
 var glanceConfig = config.glance;
 
@@ -476,9 +479,13 @@ module.exports.unregisterdel = function unregisterdel(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.configsetmono = function configsetmono(req, res, next) {
-    var content = setConfig('monorail',req.body);
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(content));
+    res.setHeader('content-type', 'text/plain');
+    if (setConfig('monorail', req.body)) {
+        res.end('success');
+    }
+    else {
+        res.end('failed to update monorail config');
+    };
 };
 
 /*
@@ -487,9 +494,13 @@ module.exports.configsetmono = function configsetmono(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.configsetkeystone = function configsetkeystone(req, res, next) {
-    var content = setConfig('keystone',req.body);
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(content));
+    res.setHeader('content-type', 'text/plain');
+    if (setConfig('keystone', req.body)) {
+        res.end('success');
+    }
+    else {
+        res.end('failed to update keystone config');
+    };
 };
 
 /*
@@ -498,17 +509,24 @@ module.exports.configsetkeystone = function configsetkeystone(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.configsetironic = function configsetironic(req, res, next) {
-    var interseptedJson = req.body;
-    var orgPass = interseptedJson.os_password;
-    var encryptedpass = encryption.encrypt(orgPass, 'aes-256-cbc', 'utf8', 'base64')
-    interseptedJson.os_password = encryptedpass;
-    var content = setConfig('ironic',interseptedJson);
-    var decrypted = encryption.decrypt(interseptedJson.os_password, 'aes-256-cbc', 'utf8', 'base64')
-    var content = setConfig('ironic',req.body);
-    content.os_password = '[REDACTED]';
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(content));
-
+    res.setHeader('content-type', 'text/plain');
+    if (req.body.hasOwnProperty('os_password')) {
+        var password = req.body.os_password;
+        //replace password with encrypted value
+        try{
+            req.body.os_password = encryption.encrypt(password);
+        }
+        catch (err) {
+            logger.error(err);
+            res.end('failed to update ironic config');
+        }
+    }    
+    if (setConfig('ironic', req.body)) {
+        res.end('success');
+    }
+    else {
+        res.end('failed to update ironic config');
+    };
 };
 
 /*
@@ -517,16 +535,24 @@ module.exports.configsetironic = function configsetironic(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.configsetglance = function configsetglance(req, res, next) {
-    var interseptedJson = req.body;
-    var orgPass = interseptedJson.os_password;
-    var encryptedpass = encryption.encrypt(orgPass, 'aes-256-cbc', 'utf8', 'base64')
-    interseptedJson.os_password = encryptedpass;
-    var content = setConfig('ironic',interseptedJson);
-    var decrypted = encryption.decrypt(interseptedJson.os_password, 'aes-256-cbc', 'utf8', 'base64')
-    var content = setConfig('glance',req.body);
-    content.os_password = '[REDACTED]';
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(content));
+    res.setHeader('content-type', 'text/plain');
+    if (req.body.hasOwnProperty('os_password')) {
+        var password = req.body.os_password;
+        //replace password with encrypted value
+        try {
+            req.body.os_password = encryption.encrypt(password);
+        }
+        catch (err) {
+            logger.error(err);
+            res.end('failed to update ironic config');
+        }
+    }
+    if (setConfig('glance', req.body)) {
+        res.end('success');
+    }
+    else {
+        res.end('failed to update glance config');
+    };
 };
 
 /*
@@ -535,46 +561,37 @@ module.exports.configsetglance = function configsetglance(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.configset = function configset(req, res, next) {
-    var content = setConfig(null,req.body);
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(content));
+   res.setHeader('content-type', 'text/plain');
+   if (setConfig('shovel', req.body) == true) {
+       res.end('success');
+   }
+   else {
+       res.end('failed to update shovel config');
+   };
 };
 
-function setConfig(keyValue,entry){
+function setConfig(keyValue, entry) {
+    var filename = require('path').dirname(require.main.filename) + '/config.json';
     try {
-        var fs = require('fs');
-        var path = require('path');
-        var is_changed = false;
-        var appDir = path.dirname(require.main.filename);
-        var file_content = fs.readFileSync(appDir + '/config.json');
-        var output = JSON.parse(file_content);
-        var content = (keyValue == null) ? output : output[keyValue];
-        logger.info(content);
-        for (var initem in Object.keys(entry)) {
-            for (var orgitem in Object.keys(content)) {
-                if (Object.keys(entry)[initem] == Object.keys(content)[orgitem]) {
-                    var key = Object.keys(content)[orgitem];
-                    content[key] = entry[key];
-                    is_changed = true;
-                }
-            }
-        }
-        if (is_changed) {
-            if (keyValue != null) {
-                output[keyValue] = content;
-            }
-            else {
-                output = content;
-            }
-            fs.writeFileSync(appDir + '/config.json', JSON.stringify(output));
-        }
+        jsonfile.readFile(filename, function (err, output) {
+            var content = (keyValue == null) ? output : output[keyValue];
+            var filteredList = _.pick(content, Object.keys(entry));
+            _.each(Object.keys(filteredList), function (key) {
+                logger.info(key);
+                content[key] = entry[key];
+
+            });
+            output[keyValue] = content;
+            jsonfile.writeFile(filename, output, { spaces: 2 }, function (err) {
+                logger.info(content);                
+            });
+        });
     }
     catch (err) {
         logger.error(err);
-        return err;
+        return false;
     }
-    logger.info(content);
-    return content
+    return true;
 }
 
 /*
@@ -592,13 +609,10 @@ module.exports.configget = function configget(req, res, next) {
     if (content.ironic.hasOwnProperty("os_password")){
         content.ironic.os_password = '[REDACTED]';
     }
-
     if (content.glance.hasOwnProperty("os_password")) {
         content.glance.os_password = '[REDACTED]';
     }
-
     res.setHeader('Content-Type', 'application/json');
-
     res.end(JSON.stringify(content));
     };
 
