@@ -273,6 +273,14 @@ function lookupCatalog(node) {
         if (!_.has(JSON.parse(lsscsi), 'data')) {
             return false;
         }
+    })
+        .then(function () {
+            return monorail.get_catalog_data_by_source(node.id, 'bmc')
+        })
+    .then(function (bmc) {
+        if (!_.has(JSON.parse(bmc), 'data')) {
+            return false;
+        }
         else {
             return true;
         }
