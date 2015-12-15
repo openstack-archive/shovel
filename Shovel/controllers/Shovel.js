@@ -243,14 +243,14 @@ module.exports.nodesGet = function nodesGet(req, res, next) {
         Promise.filter(JSON.parse(nodes), function (node) {
             return lookupCatalog(node);
         })
-    .then(function (discoveredNodes) {
-        if (typeof discoveredNodes !== 'undefined') {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(discoveredNodes));
-        }
-        else
-            res.end();
-    });
+       .then(function (discoveredNodes) {
+           if (typeof discoveredNodes !== 'undefined') {
+               res.setHeader('Content-Type', 'application/json');
+               res.end(JSON.stringify(discoveredNodes));
+           }
+           else
+               res.end();
+       });
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
