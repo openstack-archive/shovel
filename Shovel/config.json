@@ -1,47 +1,48 @@
 {
-    "appver": "v0.1",
-    "apiver": "v1.1",
-    "http": true, 
-    "httpPort": 9005, 
-    "https": true, 
-    "httpsCert": "data/dev-cert.pem", 
-    "httpsKey": "data/dev-key.pem", 
-    "httpsPort": 443, 
-    "logfileLocation": "./logs", 
-    "hostname": "0.0.0.0",
-    "monorail" : {
-        "httpHost" : "10.240.19.240",
-        "httpPort" : "8080",
-        "version"  : "1.1"
-    },
-    "onrack": {
-        "httpHost" : "172.31.128.1",
-        "httpPort" : "80",
-        "httpsPort" : "443"
-    },
-    "ironic": {
-        "httpHost" : "172.31.128.7",
-        "httpPort" : "6385",
-        "version" : "v1",
-        "os_username" : "admin",
-        "os_password" : "root",
-        "os_tenant_name" : "admin",
-        "os_auth_token" : "None",
-        "insecure" : "False"
-    },
-    "keystone": {
-        "httpHost": "172.31.128.7",
-        "httpPort": "5000",
-        "version": "v2.0"
-    },
-    "glance": {
-        "httpHost": "172.31.128.7",
-        "httpPort": "9292",
-        "version": "v1",
-        "os_username": "admin",
-        "os_password": "root",
-        "os_tenant_name": "admin",
-        "os_auth_token": "None",
-        "insecure": "False"
-    }
+  "appver": "v0.1",
+  "apiver": "v1.1",
+  "http": true,
+  "httpPort": 9005,
+  "https": true,
+  "httpsCert": "data/dev-cert.pem",
+  "httpsKey": "data/dev-key.pem",
+  "httpsPort": 443,
+  "logfileLocation": "./logs",
+  "hostname": "0.0.0.0",
+  "monorail" : {
+    "httpHost" : "10.240.19.240",
+    "httpPort" : "8080",
+    "version"  : "1.1"
+  },
+  "onrack": {
+    "httpHost" : "172.31.128.1",
+    "httpPort" : "80",
+    "httpsPort" : "443"
+  },
+  "ironic": {
+    "httpHost" : "172.31.128.7",
+    "httpPort" : "6385",
+    "version" : "v1",
+    "os_username" : "admin",
+    "os_password" : "root",
+    "os_tenant_name" : "admin",
+    "os_auth_token" : "None",
+    "insecure" : "False"
+  },
+  "keystone": {
+    "httpHost": "172.31.128.7",
+    "httpPort": "5000",
+    "version": "v2.0"
+  },
+  "glance": {
+    "httpHost": "172.31.128.7",
+    "httpPort": "9292",
+    "version": "v1",
+    "os_username": "admin",
+    "os_password": "root",
+    "os_tenant_name": "admin",
+    "os_auth_token": "None",
+    "insecure": "False"
+  },
+  "key":"Random-Key"
 }

@@ -7,7 +7,7 @@ var config = require('./../config.json');
 var glance = require('./../lib/api/openstack/glance');
 var keystone = require('./../lib/api/openstack/keystone');
 var logger = require('./../lib/services/logger').Logger;
-
+var encryption = require('./encryption');
 var ironicConfig = config.ironic;
 var glanceConfig = config.glance;
 
@@ -498,9 +498,17 @@ module.exports.configsetkeystone = function configsetkeystone(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.configsetironic = function configsetironic(req, res, next) {
+    var interseptedJson = req.body;
+    var orgPass = interseptedJson.os_password;
+    var encryptedpass = encryption.encrypt(orgPass, 'aes-256-cbc', 'utf8', 'base64')
+    interseptedJson.os_password = encryptedpass;
+    var content = setConfig('ironic',interseptedJson);
+    var decrypted = encryption.decrypt(interseptedJson.os_password, 'aes-256-cbc', 'utf8', 'base64')
     var content = setConfig('ironic',req.body);
+    content.os_password = '[REDACTED]';
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(content));
+
 };
 
 /*
@@ -509,7 +517,14 @@ module.exports.configsetironic = function configsetironic(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.configsetglance = function configsetglance(req, res, next) {
+    var interseptedJson = req.body;
+    var orgPass = interseptedJson.os_password;
+    var encryptedpass = encryption.encrypt(orgPass, 'aes-256-cbc', 'utf8', 'base64')
+    interseptedJson.os_password = encryptedpass;
+    var content = setConfig('ironic',interseptedJson);
+    var decrypted = encryption.decrypt(interseptedJson.os_password, 'aes-256-cbc', 'utf8', 'base64')
     var content = setConfig('glance',req.body);
+    content.os_password = '[REDACTED]';
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(content));
 };
@@ -573,9 +588,19 @@ module.exports.configget = function configget(req, res, next) {
     var appDir = path.dirname(require.main.filename);
     var file_content = fs.readFileSync(appDir + '/config.json');
     var content = JSON.parse(file_content);
+    delete content['key'];
+    if (content.ironic.hasOwnProperty("os_password")){
+        content.ironic.os_password = '[REDACTED]';
+    }
+
+    if (content.glance.hasOwnProperty("os_password")) {
+        content.glance.os_password = '[REDACTED]';
+    }
+
     res.setHeader('Content-Type', 'application/json');
+
     res.end(JSON.stringify(content));
-};
+    };
 
 /*
 * @api {get} /api/1.1/glance/images / GET /
