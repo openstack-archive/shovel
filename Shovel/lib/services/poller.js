@@ -169,19 +169,19 @@ function Poller(timeInterval) {
 
     Poller.prototype.startServer = function () {
         var self = this;
-        return self.getToken().
-        then(function (token) {
-            try {
-                self._timeObj = setInterval(function () {
-                    return self.getNodes(token).
-                    then(function (ironic_nodes) {
-                        return self.runPoller(ironic_nodes);
-                    });
-                }, self._timeInterval);
-            }
-            catch (err) {
-                logger.error(err);
-            };
-        });
+        try {
+            self._timeObj = setInterval(function () {
+                return self.getToken()
+                .then(function (token) {
+                    return self.getNodes(token);
+                })
+                .then(function (ironic_nodes) {
+                    return self.runPoller(ironic_nodes);
+                });
+            }, self._timeInterval);
+        }
+        catch (err) {
+            logger.error(err);
+        };
     };
 }

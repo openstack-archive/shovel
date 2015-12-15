@@ -9,6 +9,7 @@ var keystone = require('./../lib/api/openstack/keystone');
 var logger = require('./../lib/services/logger').Logger;
 var encryption = require('./../lib/services/encryption');
 var jsonfile = require('jsonfile');
+var Promise = require('bluebird');
 var _ = require('underscore');
 
 var ironicConfig = config.ironic;
@@ -239,19 +240,48 @@ module.exports.nodeGet = function nodeGet(req, res, next) {
 module.exports.nodesGet = function nodesGet(req, res, next) {
     return monorail.request_nodes_get().
     then(function (nodes) {
-        if (typeof nodes !== 'undefined') {
+        Promise.filter(JSON.parse(nodes), function (node) {
+            return lookupCatalog(node);
+        })
+    .then(function (discoveredNodes) {
+        if (typeof discoveredNodes !== 'undefined') {
             res.setHeader('Content-Type', 'application/json');
-            res.end(nodes);
+            res.end(JSON.stringify(discoveredNodes));
         }
         else
             res.end();
+    });
     })
-    .catch(function(err){
-        logger.error({message:err,path:req.url});
+    .catch(function (err) {
+        logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err));
     });
 };
+
+function lookupCatalog(node) {
+    return monorail.get_catalog_data_by_source(node.id, 'dmi')
+    .then(function (dmi) {
+        if (!_.has(JSON.parse(dmi), 'data')) {
+            return false;
+        }
+    })
+    .then(function () {
+        return monorail.get_catalog_data_by_source(node.id, 'lsscsi')
+    })
+    .then(function (lsscsi) {
+        if (!_.has(JSON.parse(lsscsi), 'data')) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    })
+    .catch(function (err) {
+        logger.error(err);
+        return false;
+    })
+}
 
 /*
 * @api {get} /api/1.1/nodes/identifier/sel / GET /
