@@ -9,8 +9,8 @@ var keystone = require('./../lib/api/openstack/keystone');
 var logger = require('./../lib/services/logger').Logger;
 var encryption = require('./../lib/services/encryption');
 var jsonfile = require('jsonfile');
-var Promise = require('bluebird');
 var _ = require('underscore');
+var Promise = require('bluebird');
 
 var ironicConfig = config.ironic;
 var glanceConfig = config.glance;
@@ -51,8 +51,8 @@ module.exports.driversGet = function driversGet(req, res, next) {
         else
             res.end();
     })
-    .catch(function(err){
-        logger.error({message:err,path:req.url});
+    .catch(function (err) {
+        logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err));
     });
@@ -78,8 +78,8 @@ module.exports.ironicnodesGet = function ironicnodesGet(req, res, next) {
         else
             res.end();
     })
-    .catch(function(err){
-        logger.error({message:err,path:req.url});
+    .catch(function (err) {
+        logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err));
     });
@@ -105,8 +105,8 @@ module.exports.ironicchassisGet = function ironicchassisGet(req, res, next) {
         else
             res.end();
     })
-    .catch(function(err){
-        logger.error({message:err,path:req.url});
+    .catch(function (err) {
+        logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err));
     });
@@ -122,7 +122,7 @@ module.exports.ironicnodeGet = function ironicnodeGet(req, res, next) {
         ironicConfig.os_password).
     then(function (token) {
         token = JSON.parse(token).access.token.id;
-        return ironic.get_nodeAsync(token, req.swagger.params.identifier.value);
+        return ironic.get_node(token, req.swagger.params.identifier.value);
     }).
     then(function (result) {
         if (typeof result !== 'undefined') {
@@ -132,8 +132,8 @@ module.exports.ironicnodeGet = function ironicnodeGet(req, res, next) {
         else
             res.end();
     })
-    .catch(function(err){
-        logger.error({message:err,path:req.url});
+    .catch(function (err) {
+        logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err));
     });
@@ -158,8 +158,8 @@ module.exports.ironicnodePatch = function ironicnodePatch(req, res, next) {
             res.end(result);
         }
     })
-    .catch(function(err){
-        logger.error({message:err,path:req.url});
+    .catch(function (err) {
+        logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err));
     });
@@ -180,8 +180,8 @@ module.exports.catalogsGet = function catalogsGet(req, res, next) {
         else
             res.end();
     })
-    .catch(function(err){
-        logger.error({message:err,path:req.url});
+    .catch(function (err) {
+        logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err));
     });
@@ -203,8 +203,8 @@ module.exports.catalogsbysourceGet = function catalogsbysourceGet(req, res, next
         else
             res.end();
     })
-    .catch(function(err){
-        logger.error({message:err,path:req.url});
+    .catch(function (err) {
+        logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err));
     });
@@ -225,8 +225,8 @@ module.exports.nodeGet = function nodeGet(req, res, next) {
         else
             res.end();
     })
-    .catch(function(err){
-        logger.error({message:err,path:req.url});
+    .catch(function (err) {
+        logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err));
     });
@@ -241,7 +241,7 @@ module.exports.nodesGet = function nodesGet(req, res, next) {
     return monorail.request_nodes_get().
     then(function (nodes) {
         Promise.filter(JSON.parse(nodes), function (node) {
-            return lookupCatalog(node);
+            return monorail.lookupCatalog(node);
         })
        .then(function (discoveredNodes) {
            if (typeof discoveredNodes !== 'undefined') {
@@ -258,38 +258,6 @@ module.exports.nodesGet = function nodesGet(req, res, next) {
         res.end(JSON.stringify(err));
     });
 };
-
-function lookupCatalog(node) {
-    return monorail.get_catalog_data_by_source(node.id, 'dmi')
-    .then(function (dmi) {
-        if (!_.has(JSON.parse(dmi), 'data')) {
-            return false;
-        }
-    })
-    .then(function () {
-        return monorail.get_catalog_data_by_source(node.id, 'lsscsi')
-    })
-    .then(function (lsscsi) {
-        if (!_.has(JSON.parse(lsscsi), 'data')) {
-            return false;
-        }
-    })
-        .then(function () {
-            return monorail.get_catalog_data_by_source(node.id, 'bmc')
-        })
-    .then(function (bmc) {
-        if (!_.has(JSON.parse(bmc), 'data')) {
-            return false;
-        }
-        else {
-            return true;
-        }
-    })
-    .catch(function (err) {
-        logger.error(err);
-        return false;
-    })
-}
 
 /*
 * @api {get} /api/1.1/nodes/identifier/sel / GET /
@@ -315,8 +283,8 @@ module.exports.getSeldata = function getSeldata(req, res, next) {
             res.end();
         }
     })
-    .catch(function(err){
-        logger.error({message:err,path:req.url});
+    .catch(function (err) {
+        logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err));
     });
@@ -361,57 +329,43 @@ module.exports.registerpost = function registerpost(req, res, next) {
     return monorail.request_node_get(user_entry.uuid).
     then(function (result) {
         if (!JSON.parse(result).name) {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(result);
+            var error = { error_message: { message: 'failed to find required node in RackHD' } };
+            logger.error(err);
+            throw error;
         }
         onrack_node = JSON.parse(result);
-    }).then(function () {
-        return monorail.get_catalog_data_by_source(user_entry.uuid, 'lsscsi').
-        then(function (scsi) {
-            scsi = JSON.parse(scsi);
-            if (scsi.data) {
-                for (var elem in scsi.data) {
-                    var item = (scsi.data[elem]);
-                    if (item['peripheralType'] == 'disk') {
-                        local_gb += parseFloat(item['size'].replace('GB', '').trim());
-                    }
-                }
-            }
+        return monorail.nodeDiskSize(onrack_node)
+        .catch(function (err) {
+            var error = { error_message: { message: 'failed to get compute node Disk Size' } };
+            logger.error(err);
+            throw error;
+
         });
-    }).then(function () {
-        monorail.get_catalog_data_by_source(user_entry.uuid, 'dmi').
-        then(function (dmi) {
-            dmi = JSON.parse(dmi);
-            if (dmi.data) {
-                var dmi_total = 0;
-                if (dmi.data['Memory Device']) {
-                    var memory_device = dmi.data['Memory Device'];
-                    for (var elem in memory_device) {
-                        var item = memory_device[elem];
-                        //logger.info(item['Size']);
-                        if (item['Size'].indexOf('GB') > -1) {
-                            dmi_total += parseFloat(item['Size'].replace('GB', '').trim()) * 1000;
-                        }
-                        if (item['Size'].indexOf('MB') > -1) {
-                            dmi_total += parseFloat(item['Size'].replace('MB', '').trim());
-                        }
-                    }
-                }
-                propreties = {
-                    'cpus': dmi['data']['Processor Information'].length,
-                    'memory_mb': dmi_total,
-                    'local_gb': local_gb
-                };
-            }
-            node = {
-                'name': user_entry.uuid,
-                'driver': user_entry.driver,
-                'driver_info': info,
-                'properties': propreties,
-                'extra': extra
-            };
+    }).then(function (localDisk) {
+        local_gb = localDisk;
+        return monorail.get_node_memory_cpu(onrack_node)
+        .catch(function (err) {
+            var error = { error_message: { message: 'failed to get compute node memory size' } };
+            logger.error(err);
+            throw error;
         });
-    }).then(function () {
+    }).then(function (dmiData) {
+        if (local_gb == 0 || dmiData.cpus == 0 || dmiData.memory == 0) {
+            var error = { error_message: { message: 'failed to get compute node data', nodeDisk: local_gb, memorySize: dmiData.memory, cpuCount: dmiData.cpus } };
+            throw (error);
+        }
+        propreties = {
+            'cpus': dmiData.cpus,
+            'memory_mb': dmiData.memory,
+            'local_gb': local_gb
+        };
+        node = {
+            'name': user_entry.uuid,
+            'driver': user_entry.driver,
+            'driver_info': info,
+            'properties': propreties,
+            'extra': extra
+        };
         return (keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
             ironicConfig.os_password));
     }).
@@ -420,10 +374,9 @@ module.exports.registerpost = function registerpost(req, res, next) {
         return ironic.create_node(ironicToken, JSON.stringify(node));
     }).
     then(function (ret) {
-        logger.info('\r\ncreate node:\r\n' + ret);
+        logger.debug('\r\ncreate node:\r\n' + ret);
         if (ret && JSON.parse(ret).error_message) {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(ret);
+            throw (JSON.parse(ret));
         }
         ironic_node = JSON.parse(ret);
         port = { 'address': user_entry.port, 'node_uuid': ironic_node.uuid };
@@ -436,9 +389,7 @@ module.exports.registerpost = function registerpost(req, res, next) {
     then(function (pwr_state) {
         logger.info('\r\npwr_state: on');
         if (pwr_state && JSON.parse(pwr_state).error_message) {
-            console.error(JSON.parse(pwr_state).error_message);
-            res.setHeader('Content-Type', 'application/json');
-            res.end(pwr_state);
+            throw (JSON.parse(pwr_state));
         }
     }).then(function () {
         var timer = {};
@@ -452,7 +403,8 @@ module.exports.registerpost = function registerpost(req, res, next) {
     }).
     then(function (result) {
         logger.info('\r\patched node:\r\n' + result);
-    }).then(function () {
+    }).
+    then(function () {
         return monorail.request_whitelist_set(user_entry.port)
     }).
     then(function (whitelist) {
@@ -460,8 +412,8 @@ module.exports.registerpost = function registerpost(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         res.end(whitelist);
     })
-    .catch(function(err){
-        logger.error({message:err,path:req.url});
+    .catch(function (err) {
+        logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err));
     });
@@ -472,36 +424,36 @@ module.exports.registerpost = function registerpost(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.unregisterdel = function unregisterdel(req, res, next) {
+    var ironicToken;
     return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
         ironicConfig.os_password).
     then(function (token) {
-        token = JSON.parse(token).access.token.id;;
-        return ironic.delete_node(token, req.swagger.params.identifier.value);
+        ironicToken = JSON.parse(token).access.token.id;
+        return ironic.get_node(ironicToken, req.swagger.params.identifier.value);
+    }).
+    then(function (ironicNode) {
+        if (JSON.parse(ironicNode).hasOwnProperty('extra')) {
+            return monorail.request_whitelist_del(JSON.parse(ironicNode).extra.nodeid);
+        }
+        else {
+            throw { error_message: 'Node is not registered with Shovel' };
+        }
+    }).
+    then(function () {
+        return ironic.delete_node(ironicToken, req.swagger.params.identifier.value);
     }).
     then(function (del_node) {
         if (del_node && JSON.parse(del_node).error_message) {
-            logger.info(del_node);
-            res.setHeader('Content-Type', 'application/json');
-            res.end(del_node);
-            return;
+            throw (del_node);
         }
-        return monorail.request_node_get(req.swagger.params.identifier.value);
-    }).
-    then(function (onrack_node) {
-        if (onrack_node && !JSON.parse(onrack_node).name) {
-            logger.info(onrack_node);
+        else {
+            logger.debug('ironicNode: ' + req.swagger.params.identifier.value + ' is been deleted susccessfully');
             res.setHeader('Content-Type', 'application/json');
-            res.end(onrack_node);
-            return;
+            var success = {
+                result: 'success'
+            };
+            res.end(JSON.stringify(success));
         }
-        return monorail.request_whitelist_del(JSON.parse(onrack_node).name);
-    }).
-    then(function (whitelist) {
-        res.setHeader('Content-Type', 'application/json');
-        var success = {
-            result: 'success'
-        };
-        res.end(JSON.stringify(success));
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
@@ -551,14 +503,14 @@ module.exports.configsetironic = function configsetironic(req, res, next) {
     if (req.body.hasOwnProperty('os_password')) {
         var password = req.body.os_password;
         //replace password with encrypted value
-        try{
+        try {
             req.body.os_password = encryption.encrypt(password);
         }
         catch (err) {
             logger.error(err);
             res.end('failed to update ironic config');
         }
-    }    
+    }
     if (setConfig('ironic', req.body)) {
         res.end('success');
     }
@@ -599,19 +551,19 @@ module.exports.configsetglance = function configsetglance(req, res, next) {
 * @apiVersion 1.1.0
 */
 module.exports.configset = function configset(req, res, next) {
-   res.setHeader('content-type', 'text/plain');
-   if (setConfig('shovel', req.body) == true) {
-       res.end('success');
-   }
-   else {
-       res.end('failed to update shovel config');
-   };
+    res.setHeader('content-type', 'text/plain');
+    if (setConfig('shovel', req.body) == true) {
+        res.end('success');
+    }
+    else {
+        res.end('failed to update shovel config');
+    };
 };
 
 function setConfig(keyValue, entry) {
-    var filename = require('path').dirname(require.main.filename) + '/config.json';
-    try {
-        jsonfile.readFile(filename, function (err, output) {
+    var filename = 'config.json';
+    jsonfile.readFile(filename, function (err, output) {
+        try {
             var content = (keyValue == null) ? output : output[keyValue];
             var filteredList = _.pick(content, Object.keys(entry));
             _.each(Object.keys(filteredList), function (key) {
@@ -621,14 +573,15 @@ function setConfig(keyValue, entry) {
             });
             output[keyValue] = content;
             jsonfile.writeFile(filename, output, { spaces: 2 }, function (err) {
-                logger.info(content);                
+                logger.debug(content);
             });
-        });
-    }
-    catch (err) {
-        logger.error(err);
-        return false;
-    }
+        }
+        catch (err) {
+            logger.error(err);
+            return false;
+        }
+    });
+
     return true;
 }
 
@@ -638,29 +591,34 @@ function setConfig(keyValue, entry) {
 * @apiVersion 1.1.0
 */
 module.exports.configget = function configget(req, res, next) {
-    var fs = require('fs');
-    var path = require('path');
-    var appDir = path.dirname(require.main.filename);
-    var file_content = fs.readFileSync(appDir + '/config.json');
-    var content = JSON.parse(file_content);
-    delete content['key'];
-    if (content.ironic.hasOwnProperty("os_password")){
-        content.ironic.os_password = '[REDACTED]';
-    }
-    if (content.glance.hasOwnProperty("os_password")) {
-        content.glance.os_password = '[REDACTED]';
-    }
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(content));
-    };
+    var filename = 'config.json';
+    jsonfile.readFile(filename, function (err, content) {
+        try {
+
+            delete content['key'];
+            if (content.ironic.hasOwnProperty("os_password")) {
+                content.ironic.os_password = '[REDACTED]';
+            }
+            if (content.glance.hasOwnProperty("os_password")) {
+                content.glance.os_password = '[REDACTED]';
+            }
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(content));
+        }
+        catch (err) {
+            logger.error(err);
+            res.end();
+        };
+    });
+};
 
 /*
 * @api {get} /api/1.1/glance/images / GET /
 * @apiDescription get glance images
 */
 module.exports.imagesGet = function imagesGet(req, res, next) {
-    return keystone.authenticatePassword(glanceConfig.os_tenant_name,glanceConfig.os_username,
-        glanceConfig.os_password  ).
+    return keystone.authenticatePassword(glanceConfig.os_tenant_name, glanceConfig.os_username,
+        glanceConfig.os_password).
     then(function (token) {
         token = JSON.parse(token).access.token.id;
         return glance.get_images(token);

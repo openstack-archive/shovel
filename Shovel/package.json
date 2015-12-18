@@ -1,33 +1,35 @@
 {
-  "name": "",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "keywords": [
-    "swagger"
-  ],
-  "license": "MIT",
-  "private": true,
-  "dependencies": {
-    "connect": "^3.2.0",
-    "swagger-tools": "0.8.*",
-     "bluebird": ""
-  },
-  "devDependencies": {
-    "should": "~7.0.1",
-    "mocha": "^2.1.0",
-    "sinon": "1.16.1",
-    "sinon-as-promised": "^2.0.3",
-    "sinon-chai": "^2.7.0",
-    "supertest": "^0.15.0",
-    "underscore":  "^1.8.3",
-    "xunit-file": "0.0.6",
-    "winston":  "2.1.1",
-    "jsonfile": "2.2.3",
-    "crypto":  "0.0.3" 
-  },
-  "scripts" :{
-    "postinstall": "scripts/post-install.sh",
-    "start" : "start shovel"
-  }
+    "name": "",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "keywords": [
+        "swagger"
+    ],
+    "license": "MIT",
+    "private": true,
+    "dependencies": {
+        "connect": "^3.2.0",
+        "swagger-tools": "0.8.*",
+        "bluebird": ""
+    },
+    "devDependencies": {
+        "should": "~7.0.1",
+        "mocha": "^2.1.0",
+        "sinon": "1.16.1",
+        "sinon-as-promised": "^2.0.3",
+        "sinon-chai": "^2.7.0",
+        "supertest": "^0.15.0",
+        "underscore": "^1.8.3",
+        "xunit-file": "0.0.6",
+        "winston": "2.1.1",
+        "jsonfile": "2.2.3",
+        "crypto": "0.0.3",
+        "istanbul": "0.4.1"
+    },
+    "scripts": {
+        "postinstall": "scripts/post-install.sh",
+        "start": "start shovel",
+        "test": "istanbul cover -x '**/test/**' ./node_modules/.bin/_mocha test/* && istanbul report cobertura"
+    }
 }
