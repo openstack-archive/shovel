@@ -367,12 +367,19 @@ module.exports.registerpost = function registerpost(req, res, next) {
         logger.info('\r\patched node:\r\n' + result);
     }).
     then(function () {
-        return monorail.request_whitelist_set(user_entry.port)
-    }).
-    then(function (whitelist) {
-        logger.info('\r\nmonorail whitelist:\r\n' + JSON.stringify(whitelist));
+        _.each(onrack_node.identifiers, function (mac) {
+            return monorail.request_whitelist_set(mac)
+            .then(function (whitelist) {
+                logger.info('\r\nmonorail whitelist:\r\n' + JSON.stringify(whitelist));
+            });
+        });
+    })
+    .then(function (whitelist) {
         res.setHeader('Content-Type', 'application/json');
-        res.end(whitelist);
+        var success = {
+            result: 'success'
+        };
+        res.end(JSON.stringify(success));
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
@@ -405,7 +412,13 @@ module.exports.unregisterdel = function unregisterdel(req, res, next) {
                 result: 'success'
             };
             res.end(JSON.stringify(success));
-            return monorail.request_whitelist_del(req.swagger.params.identifier.value);
+            //remove macs from whitelist in rackHD
+            return monorail.request_node_get(req.swagger.params.identifier.value)
+            .then(function (node) {
+                _.each(JSON.parse(node).identifiers, function (mac) {
+                    return monorail.request_whitelist_del(mac);
+                });
+            });
         }
     })
     .catch(function (err) {
