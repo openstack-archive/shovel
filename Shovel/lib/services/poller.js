@@ -5,7 +5,7 @@ var ironic = require('./../api/openstack/ironic');
 var keystone = require('./../api/openstack/keystone');
 var _ = require('underscore');
 var config = require('./../../config.json');
-var logger = require('./logger').Logger('error');
+var logger = require('./logger').Logger('info');
 
 module.exports = Poller;
 var ironicConfig = config.ironic;
