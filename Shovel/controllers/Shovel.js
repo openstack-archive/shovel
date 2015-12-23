@@ -387,34 +387,25 @@ module.exports.registerpost = function registerpost(req, res, next) {
 */
 module.exports.unregisterdel = function unregisterdel(req, res, next) {
     var ironicToken;
+    //TODO allow using name or ironic node uuid
     return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
         ironicConfig.os_password).
     then(function (token) {
         ironicToken = JSON.parse(token).access.token.id;
-        return ironic.get_node(ironicToken, req.swagger.params.identifier.value);
-    }).
-    then(function (ironicNode) {
-        if (JSON.parse(ironicNode).hasOwnProperty('extra')) {
-            return monorail.request_whitelist_del(JSON.parse(ironicNode).extra.nodeid);
-        }
-        else {
-            throw { error_message: 'Node is not registered with Shovel' };
-        }
-    }).
-    then(function () {
         return ironic.delete_node(ironicToken, req.swagger.params.identifier.value);
-    }).
-    then(function (del_node) {
+    })
+    .then(function (del_node) {
         if (del_node && JSON.parse(del_node).error_message) {
             throw (del_node);
         }
         else {
-            logger.debug('ironicNode: ' + req.swagger.params.identifier.value + ' is been deleted susccessfully');
+            logger.info('ironicNode: ' + req.swagger.params.identifier.value + ' is been deleted susccessfully');
             res.setHeader('Content-Type', 'application/json');
             var success = {
                 result: 'success'
             };
             res.end(JSON.stringify(success));
+            return monorail.request_whitelist_del(req.swagger.params.identifier.value);
         }
     })
     .catch(function (err) {
