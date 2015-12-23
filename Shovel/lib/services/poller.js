@@ -1,9 +1,11 @@
+// Copyright 2015, EMC, Inc.
+
 var monorail = require('./../api/monorail/monorail');
 var ironic = require('./../api/openstack/ironic');
 var keystone = require('./../api/openstack/keystone');
 var _ = require('underscore');
 var config = require('./../../config.json');
-var logger = require('./logger').Logger;
+var logger = require('./logger').Logger('error');
 
 module.exports = Poller;
 var ironicConfig = config.ironic;
@@ -15,23 +17,23 @@ function Poller(timeInterval) {
     Poller.prototype.getToken = function () {
         var self = this;
         return keystone.authenticatePassword(ironicConfig.os_tenant_name,
-            ironicConfig.os_username,ironicConfig.os_password).
+            ironicConfig.os_username, ironicConfig.os_password).
         then(function (token) {
             self._ironicToken = token = JSON.parse(token).access.token.id;
             return token;
         })
         .catch(function (err) {
             logger.error(err);
-            return null;
+            return (null);
         });
     };
 
     Poller.prototype.stopServer = function () {
-        try{
+        try {
             clearInterval(this.timeObj);
             this.timeObj = 0;
         }
-        catch(err){
+        catch (err) {
             logger.error(err);
         }
     };
@@ -46,9 +48,8 @@ function Poller(timeInterval) {
 
     Poller.prototype.searchIronic = function (ironic_node) {
         var self = this;
-        return ironic.get_node(self._ironicToken, ironic_node.uuid).
-        then(function (node_data) {
-            node_data = JSON.parse(node_data);
+        var node_data = ironic_node;
+        try {
             if (node_data != undefined &&
                 node_data.extra && node_data.extra.timer) {
                 if (!node_data.extra.timer.stop) {
@@ -61,23 +62,23 @@ function Poller(timeInterval) {
                         node_data.extra.timer.start = new Date().toJSON();
                         if (node_data.extra.timer.isDone) {
                             node_data.extra.timer.isDone = false;
-                            self.updateInfo(self._ironicToken, node_data).
+                            return self.updateInfo(self._ironicToken, node_data).
                             then(function (data) {
                                 return self.patchData(node_data.uuid, JSON.stringify(data));
                             }).
                             then(function (result) {
-                                return result;
+                                return (result);
                             });
-
                         }
                     }
                 }
             }
-        })
-        .catch(function (err) {
+            return Promise.resolve(null);
+        }
+        catch (err) {
             logger.error(err);
-            return null;
-        });
+            return Promise.resolve(null);
+        };
     };
 
     Poller.prototype.getNodes = function (token) {
@@ -87,7 +88,7 @@ function Poller(timeInterval) {
         })
         .catch(function (err) {
             logger.error(err);
-            return null;
+            return (null);
         });
     };
 
@@ -97,21 +98,20 @@ function Poller(timeInterval) {
         then(function (result) {
             result = JSON.parse(result);
             if (result != undefined) {
-                return result.extra;
+                return (result.extra);
             }
-            return null;
+            return (null);
         })
         .catch(function (err) {
             logger.error(err);
-            return null;
+            return (null);
         });
     };
 
     Poller.prototype.updateInfo = function (token, node_data) {
-        var self = this;
         return this.getSeldata(node_data.extra.nodeid).
         then(function (result) {
-            if (result != undefined) {
+            if (result != null) {
                 var lastEvent = {};
                 result = JSON.parse(result);
                 if (result[0] && result[0].hasOwnProperty('sel')) {
@@ -131,11 +131,11 @@ function Poller(timeInterval) {
             node_data.extra.timer.isDone = true;
             node_data.extra.events = lastEvent;
             var data = [{ 'path': '/extra', 'value': node_data.extra, 'op': 'replace' }];
-            return data;
+            return (data);
         })
         .catch(function (err) {
             logger.error(err);
-            return null;
+            return (null);
         });
     }
 

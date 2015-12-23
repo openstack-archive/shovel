@@ -1,3 +1,5 @@
+// Copyright 2015, EMC, Inc.
+
 'use strict';
 
 var url = require('url');
@@ -6,12 +8,11 @@ var ironic = require('./../lib/api/openstack/ironic');
 var config = require('./../config.json');
 var glance = require('./../lib/api/openstack/glance');
 var keystone = require('./../lib/api/openstack/keystone');
-var logger = require('./../lib/services/logger').Logger;
+var logger = require('./../lib/services/logger').Logger('info');
 var encryption = require('./../lib/services/encryption');
 var jsonfile = require('jsonfile');
 var _ = require('underscore');
 var Promise = require('bluebird');
-
 var ironicConfig = config.ironic;
 var glanceConfig = config.glance;
 
@@ -44,12 +45,8 @@ module.exports.driversGet = function driversGet(req, res, next) {
         return ironic.get_driver_list(token);
     }).
     then(function (result) {
-        if (typeof result !== 'undefined') {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(result);
-        }
-        else
-            res.end();
+        res.setHeader('Content-Type', 'application/json');
+        res.end(result);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
@@ -71,12 +68,8 @@ module.exports.ironicnodesGet = function ironicnodesGet(req, res, next) {
         return ironic.get_node_list(token);
     }).
     then(function (result) {
-        if (typeof result !== 'undefined') {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(result);
-        }
-        else
-            res.end();
+        res.setHeader('Content-Type', 'application/json');
+        res.end(result);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
@@ -98,12 +91,8 @@ module.exports.ironicchassisGet = function ironicchassisGet(req, res, next) {
         return ironic.get_chassis_by_id(token, req.swagger.params.identifier.value);
     }).
     then(function (result) {
-        if (typeof result !== 'undefined') {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(result);
-        }
-        else
-            res.end();
+        res.setHeader('Content-Type', 'application/json');
+        res.end(result);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
@@ -125,12 +114,8 @@ module.exports.ironicnodeGet = function ironicnodeGet(req, res, next) {
         return ironic.get_node(token, req.swagger.params.identifier.value);
     }).
     then(function (result) {
-        if (typeof result !== 'undefined') {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(result);
-        }
-        else
-            res.end();
+        res.setHeader('Content-Type', 'application/json');
+        res.end(result);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
@@ -153,10 +138,8 @@ module.exports.ironicnodePatch = function ironicnodePatch(req, res, next) {
         return ironic.patch_node(token, req.swagger.params.identifier.value, data);
     }).
     then(function (result) {
-        if (result) {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(result);
-        }
+        res.setHeader('Content-Type', 'application/json');
+        res.end(result);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
@@ -173,12 +156,8 @@ module.exports.ironicnodePatch = function ironicnodePatch(req, res, next) {
 module.exports.catalogsGet = function catalogsGet(req, res, next) {
     return monorail.request_catalogs_get(req.swagger.params.identifier.value).
     then(function (catalogs) {
-        if (typeof catalogs !== 'undefined') {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(catalogs);
-        }
-        else
-            res.end();
+        res.setHeader('Content-Type', 'application/json');
+        res.end(catalogs);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
@@ -196,12 +175,8 @@ module.exports.catalogsbysourceGet = function catalogsbysourceGet(req, res, next
     return monorail.get_catalog_data_by_source(req.swagger.params.identifier.value,
         req.swagger.params.source.value).
     then(function (catalogs) {
-        if (typeof catalogs !== 'undefined') {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(catalogs);
-        }
-        else
-            res.end();
+        res.setHeader('Content-Type', 'application/json');
+        res.end(catalogs);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
@@ -218,12 +193,8 @@ module.exports.catalogsbysourceGet = function catalogsbysourceGet(req, res, next
 module.exports.nodeGet = function nodeGet(req, res, next) {
     return monorail.request_node_get(req.swagger.params.identifier.value).
     then(function (node) {
-        if (typeof node !== 'undefined') {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(node);
-        }
-        else
-            res.end();
+        res.setHeader('Content-Type', 'application/json');
+        res.end(node);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
@@ -244,12 +215,8 @@ module.exports.nodesGet = function nodesGet(req, res, next) {
             return monorail.lookupCatalog(node);
         })
        .then(function (discoveredNodes) {
-           if (typeof discoveredNodes !== 'undefined') {
-               res.setHeader('Content-Type', 'application/json');
-               res.end(JSON.stringify(discoveredNodes));
-           }
-           else
-               res.end();
+           res.setHeader('Content-Type', 'application/json');
+           res.end(JSON.stringify(discoveredNodes));
        });
     })
     .catch(function (err) {
@@ -267,20 +234,15 @@ module.exports.nodesGet = function nodesGet(req, res, next) {
 module.exports.getSeldata = function getSeldata(req, res, next) {
     return monorail.request_poller_get(req.swagger.params.identifier.value).
     then(function (pollers) {
-        if (typeof pollers !== 'undefined') {
-            pollers = JSON.parse(pollers);
-            for (var i in pollers) {
-                if (pollers[i]['config']['command'] === 'sel') {
-                    return monorail.request_poller_data_get(pollers[i]['id']).
-                    then(function (data) {
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(data);
-                    });
-                }
+        pollers = JSON.parse(pollers);
+        for (var i in pollers) {
+            if (pollers[i]['config']['command'] === 'sel') {
+                return monorail.request_poller_data_get(pollers[i]['id']).
+                then(function (data) {
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(data);
+                });
             }
-        }
-        else {
-            res.end();
         }
     })
     .catch(function (err) {
@@ -460,7 +422,6 @@ module.exports.unregisterdel = function unregisterdel(req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err));
     });
-
 };
 
 /*
@@ -567,7 +528,6 @@ function setConfig(keyValue, entry) {
             var content = (keyValue == null) ? output : output[keyValue];
             var filteredList = _.pick(content, Object.keys(entry));
             _.each(Object.keys(filteredList), function (key) {
-                logger.info(key);
                 content[key] = entry[key];
 
             });
@@ -581,7 +541,6 @@ function setConfig(keyValue, entry) {
             return false;
         }
     });
-
     return true;
 }
 
@@ -594,7 +553,6 @@ module.exports.configget = function configget(req, res, next) {
     var filename = 'config.json';
     jsonfile.readFile(filename, function (err, content) {
         try {
-
             delete content['key'];
             if (content.ironic.hasOwnProperty("os_password")) {
                 content.ironic.os_password = '[REDACTED]';
@@ -607,7 +565,8 @@ module.exports.configget = function configget(req, res, next) {
         }
         catch (err) {
             logger.error(err);
-            res.end();
+            res.setHeader('content-type', 'text/plain');
+            res.end('failed to get config');
         };
     });
 };
@@ -624,12 +583,8 @@ module.exports.imagesGet = function imagesGet(req, res, next) {
         return glance.get_images(token);
     }).
     then(function (result) {
-        if (typeof result !== 'undefined') {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(result);
-        }
-        else
-            res.end();
+        res.setHeader('Content-Type', 'application/json');
+        res.end(result);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
