@@ -12,7 +12,10 @@ A Shovel Horizon plugin is also provided to interface with the Shovel service. T
   - Service Application called [Shovel](https://github.com/keedya/Shovel-horizon/tree/master/Shovel), serves as [RackHD](https://github.com/RackHD/RackHD)/[Ironic](https://wiki.openstack.org/wiki/Ironic) coordinator (Readme [Instructions](https://github.com/keedya/Shovel-horizon/blob/master/Shovel/README.md) to setup the service). 
   - [Shovel Horizon](https://github.com/keedya/Shovel-horizon/tree/master/Horizon) Plug-in ( [Instructions](https://github.com/keedya/Shovel-horizon/blob/master/Horizon/README.md) to Deploy plug-in to Horizon interface).
 
+### System level Diagram
 ![alt text](https://github.com/keedya/Shovel-horizon/blob/master/Shovel/snapshot/dev_config.PNG)
+
+### Services Diagram
 ![alt text](https://github.com/keedya/Shovel-horizon/blob/master/Shovel/snapshot/shovel_func.PNG)
 
 ## Licensing
