@@ -9,6 +9,7 @@
 - cd Devstack
 - in Devstack, Create local.conf :
   ```python
+  
   [[local|localrc]]
   #Enable Ironic API and Ironic Conductor
   enable_service ironic
@@ -67,6 +68,7 @@
 
 - cat>>/etc/network/interfaces
   ```python
+  
   auto eth2
   iface eth2 inet static
   address 172.31.128.7
@@ -87,6 +89,7 @@ Once the installation is completed, an external bridge can be setup for Neutron 
  - ifconfig br-eth2 promisc up
 - Update external bridge configuration cat>>/etc/network/interfaces
   ```python
+  
   auto eth2
   iface eth2 inet manual
   auto br-eth2
