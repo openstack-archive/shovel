@@ -24,4 +24,4 @@ alt="Shovel" width="240" height="180" border="10" /></a>
 ## Licensing
 
 ## Support
-Please file bugs and issues at the GitHub issues page.
+Please file bugs and issues at [Launchpad Sovel page](https://launchpad.net/shovel).
