@@ -351,7 +351,7 @@ module.exports.registerpost = function registerpost(req, res) {
         propreties = {
             'cpus': dmiData.cpus,
             'memory_mb': dmiData.memory,
-            'localGb': localGb
+            'local_gb': localGb
         };
         node = {
             'name': userEntry.uuid,
