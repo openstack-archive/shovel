@@ -98,8 +98,8 @@ describe('*****Shovel poller Class****', function () {
         });
 
         it('pollerInstance.getSeldata() have property sensorNumber, event', function (done) {
-            return pollerInstance.getSeldata(identifier).
-            then(function (data) {
+            return pollerInstance.getSeldata(identifier)
+            .then(function (data) {
                 var result = JSON.parse(data);
                 result.should.have.property('sel');
                 _.each(result[0], function (item) {
@@ -108,9 +108,9 @@ describe('*****Shovel poller Class****', function () {
                 });
                 done();
             })
-            .catch(function (err) {
-                throw (err);
-            });
+           .catch(function (err) {
+               throw (err);
+           });
         });
 
         it('Poller.prototype.updateInfo have property path, value', function (done) {

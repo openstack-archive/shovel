@@ -1,3 +1,6 @@
+// Copyright 2015, EMC, Inc.
+
+/*eslint-env node*/
 var config = require('./../../../config.json');
 var client = require('./../client');
 var Promise = require('bluebird');
@@ -15,42 +18,51 @@ var request = {
 };
 
 /*
- * Monorail wrapper functions 
- */
+ * Monorail wrapper functions
+*/
 var MonorailWrapper = {
-    request_nodes_get: function (ret) {
+    request_nodes_get: function () {
+        'use strict';
         request.path = pfx + '/nodes';
         return client.GetAsync(request);
     },
-    request_node_get: function (identifier, ret) {
+    request_node_get: function (identifier) {
+        'use strict';
         request.path = pfx + '/nodes/' + identifier;
         return client.GetAsync(request);
     },
-    request_whitelist_set: function (hwaddr, ret) {
+    request_whitelist_set: function (hwaddr) {
+        'use strict';
         request.path = pfx + '/nodes/' + hwaddr + '/dhcp/whitelist';
         return client.PostAsync(request);
     },
-    request_whitelist_del: function (hwaddr, ret) {
+    request_whitelist_del: function (hwaddr) {
+        'use strict';
         request.path = pfx + '/nodes/' + hwaddr + '/dhcp/whitelist';
         return client.DeleteAsync(request);
     },
-    request_catalogs_get: function (hwaddr, ret) {
+    request_catalogs_get: function (hwaddr) {
+        'use strict';
         request.path = pfx + '/nodes/' + hwaddr + '/catalogs';
         return client.GetAsync(request);
     },
-    get_catalog_data_by_source: function (hwaddr, source, ret) {
+    get_catalog_data_by_source: function (hwaddr, source) {
+        'use strict';
         request.path = pfx + '/nodes/' + hwaddr + '/catalogs/' + source;
         return client.GetAsync(request);
     },
-    request_poller_get: function (identifier, ret) {
+    request_poller_get: function (identifier) {
+        'use strict';
         request.path = pfx + '/nodes/' + identifier + '/pollers';
         return client.GetAsync(request);
     },
-    request_poller_data_get: function (identifier, ret) {
+    request_poller_data_get: function (identifier) {
+        'use strict';
         request.path = pfx + '/pollers/' + identifier + '/data/current';
         return client.GetAsync(request);
     },
     lookupCatalog: function lookupCatalog(node) {
+        'use strict';
         var self = this;
         return self.get_catalog_data_by_source(node.id, 'dmi')
         .then(function (dmi) {
@@ -59,7 +71,7 @@ var MonorailWrapper = {
             }
         })
         .then(function () {
-            return self.get_catalog_data_by_source(node.id, 'lsscsi')
+            return self.get_catalog_data_by_source(node.id, 'lsscsi');
         })
         .then(function (lsscsi) {
             if (!_.has(JSON.parse(lsscsi), 'data')) {
@@ -67,71 +79,72 @@ var MonorailWrapper = {
             }
         })
             .then(function () {
-                return self.get_catalog_data_by_source(node.id, 'bmc')
+                return self.get_catalog_data_by_source(node.id, 'bmc');
             })
         .then(function (bmc) {
             if (!_.has(JSON.parse(bmc), 'data')) {
                 return false;
-            }
-            else {
+            } else {
                 return true;
             }
         })
-        .catch(function (err) {
+        .catch(function () {
             return false;
-        })
+        });
     },
     nodeDiskSize: function nodeDiskSize(node) {
-        var local_gb = 0;
+        'use strict';
+        var localGb = 0;
         var self = this;
         return self.get_catalog_data_by_source(node.id, 'lsscsi').
             then(function (scsi) {
                 scsi = JSON.parse(scsi);
                 if (scsi.data) {
-                    for (var elem in scsi.data) {
-                        var item = (scsi.data[elem]);
-                        if (item['peripheralType'] == 'disk') {
-                            local_gb += parseFloat(item['size'].replace('GB', '').trim());
+                    for (var elem = 0; elem < scsi.data.length; elem++) {
+                        var item = scsi.data[elem];
+                        if (item.peripheralType === 'disk') {
+                            localGb += parseFloat(item.size.replace('GB', '').trim());
                         }
                     }
                 }
-                return Promise.resolve(local_gb);
+                return Promise.resolve(localGb);
             })
         .catch(function (err) {
             throw err;
-        })
+        });
     },
-    get_node_memory_cpu: function get_node_memory_cpu(computeNode) {
+    getNodeMemoryCpu: function getNodeMemoryCpu(computeNode) {
+        'use strict';
         var self = this;
         var dmiData = { cpus: 0, memory: 0 };
         return self.get_catalog_data_by_source(computeNode.id, 'dmi').
         then(function (dmi) {
             dmi = JSON.parse(dmi);
             if (dmi.data) {
-                var dmi_total = 0;
+                var dmiTotal = 0;
                 if (dmi.data['Memory Device']) {
-                    var memory_device = dmi.data['Memory Device'];
-                    for (var elem in memory_device) {
-                        var item = memory_device[elem];
+                    var memoryDevice = dmi.data['Memory Device'];
+                    for (var elem = 0; elem < memoryDevice.length; elem++) {
+                        var item = memoryDevice[elem];
                         //logger.info(item['Size']);
-                        if (item['Size'].indexOf('GB') > -1) {
-                            dmi_total += parseFloat(item['Size'].replace('GB', '').trim()) * 1000;
+                        if (item.Size.indexOf('GB') > -1) {
+                            dmiTotal += parseFloat(item.Size.replace('GB', '').trim()) * 1000;
                         }
-                        if (item['Size'].indexOf('MB') > -1) {
-                            dmi_total += parseFloat(item['Size'].replace('MB', '').trim());
+                        if (item.Size.indexOf('MB') > -1) {
+                            dmiTotal += parseFloat(item.Size.replace('MB', '').trim());
                         }
                     }
-                    dmiData.memory = dmi_total;
+                    dmiData.memory = dmiTotal;
                 }
-                if (dmi['data'].hasOwnProperty('Processor Information')) {
-                    dmiData.cpus = dmi['data']['Processor Information'].length;
+                if (dmi.data.hasOwnProperty('Processor Information')) {
+                    dmiData.cpus = dmi.data['Processor Information'].length;
                 }
             }
             return Promise.resolve(dmiData);
         })
         .catch(function (err) {
             throw err;
-        })
+        });
     }
 
 };

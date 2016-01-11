@@ -1,9 +1,11 @@
 // Copyright 2015, EMC, Inc.
 
+/*eslint-env node*/
 var winston = require('winston');
 
 module.exports.Logger = function Logger(level) {
-    var logger = new (winston.Logger)({
+    'use strict';
+    var logger = new winston.Logger({
         levels: {
             verbose: 5,
             debug: 4,
@@ -27,4 +29,4 @@ module.exports.Logger = function Logger(level) {
         timestamp: true
     });
     return logger;
-}
+};

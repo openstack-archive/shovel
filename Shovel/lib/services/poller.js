@@ -1,15 +1,18 @@
 // Copyright 2015, EMC, Inc.
 
+/*eslint-env node*/
 var monorail = require('./../api/monorail/monorail');
 var ironic = require('./../api/openstack/ironic');
 var keystone = require('./../api/openstack/keystone');
 var _ = require('underscore');
 var config = require('./../../config.json');
 var logger = require('./logger').Logger('info');
+var Promise = require('bluebird');
 
 module.exports = Poller;
 var ironicConfig = config.ironic;
 function Poller(timeInterval) {
+    'use strict';
     this._timeInterval = timeInterval;
     this._ironicToken = null;
     this._timeObj = null;
@@ -24,7 +27,7 @@ function Poller(timeInterval) {
         })
         .catch(function (err) {
             logger.error(err);
-            return (null);
+            return null;
         });
     };
 
@@ -32,63 +35,63 @@ function Poller(timeInterval) {
         try {
             clearInterval(this.timeObj);
             this.timeObj = 0;
-        }
-        catch (err) {
+        } catch (err) {
             logger.error(err);
         }
     };
 
-    Poller.prototype.runPoller = function (ironic_nodes) {
+    Poller.prototype.runPoller = function (ironicNodes) {
         var self = this;
-        for (var i in ironic_nodes) {
-            logger.info('Running poller on :' + ironic_nodes[i].uuid + ':');
-            self.searchIronic(ironic_nodes[i]);
+        if (ironicNodes !== null) {
+            for (var i = 0; i < ironicNodes.length; i++) {
+                logger.info('Running poller on :' + ironicNodes[i].uuid + ':');
+                self.searchIronic(ironicNodes[i]);
+            }
         }
     };
 
-    Poller.prototype.searchIronic = function (ironic_node) {
+    Poller.prototype.searchIronic = function (ironicNode) {
         var self = this;
-        var node_data = ironic_node;
+        var nodeData = ironicNode;
         try {
-            if (node_data != undefined &&
-                node_data.extra && node_data.extra.timer) {
-                if (!node_data.extra.timer.stop) {
+            if (nodeData !== null &&
+                nodeData.extra && nodeData.extra.timer) {
+                if (!nodeData.extra.timer.stop) {
                     var timeNow = new Date();
-                    var timeFinished = node_data.extra.timer.finish;
-                    var _timeInterval = node_data.extra.timer.timeInterval;
+                    var timeFinished = nodeData.extra.timer.finish;
+                    var _timeInterval = nodeData.extra.timer.timeInterval;
                     var parsedDate = new Date(Date.parse(timeFinished));
                     var newDate = new Date(parsedDate.getTime() + _timeInterval);
                     if (newDate < timeNow) {
-                        node_data.extra.timer.start = new Date().toJSON();
-                        if (node_data.extra.timer.isDone) {
-                            node_data.extra.timer.isDone = false;
-                            return self.updateInfo(self._ironicToken, node_data).
+                        nodeData.extra.timer.start = new Date().toJSON();
+                        if (nodeData.extra.timer.isDone) {
+                            nodeData.extra.timer.isDone = false;
+                            return self.updateInfo(self._ironicToken, nodeData).
                             then(function (data) {
-                                return self.patchData(node_data.uuid, JSON.stringify(data));
+                                return self.patchData(nodeData.uuid, JSON.stringify(data));
                             }).
                             then(function (result) {
-                                return (result);
+                                return result;
                             });
                         }
                     }
                 }
             }
             return Promise.resolve(null);
-        }
-        catch (err) {
+        } catch (err) {
             logger.error(err);
             return Promise.resolve(null);
-        };
+        }
     };
 
     Poller.prototype.getNodes = function (token) {
         return ironic.get_node_list(token).
         then(function (result) {
-            return (JSON.parse(result).nodes);
+            return JSON.parse(result).nodes;
         })
         .catch(function (err) {
             logger.error(err);
-            return (null);
+            return null;
         });
     };
 
@@ -97,75 +100,80 @@ function Poller(timeInterval) {
         return ironic.patch_node(self._ironicToken, uuid, data).
         then(function (result) {
             result = JSON.parse(result);
-            if (result != undefined) {
-                return (result.extra);
+            if (typeof result !== 'undefined') {
+                return result.extra;
             }
-            return (null);
+            return null;
         })
         .catch(function (err) {
             logger.error(err);
-            return (null);
+            return null;
         });
     };
 
-    Poller.prototype.updateInfo = function (token, node_data) {
-        return this.getSeldata(node_data.extra.nodeid).
+    Poller.prototype.updateInfo = function (token, nodeData) {
+        return this.getSeldata(nodeData.extra.nodeid).
         then(function (result) {
-            if (result != null) {
-                var lastEvent = {};
+            var lastEvent = {};
+            if (result !== null) {
                 result = JSON.parse(result);
                 if (result[0] && result[0].hasOwnProperty('sel')) {
-                    if (node_data.extra.eventre != undefined) {
+                    if (nodeData.extra.eventre !== null) {
                         var arr = result[0].sel;
-                        var events = _.where(arr, { event: node_data.extra.eventre });
-                        if (events != undefined) {
+                        var events = _.where(arr, { event: nodeData.extra.eventre });
+                        if (events !== null) {
                             logger.info(events);
-                            node_data.extra.eventcnt = events.length;
+                            nodeData.extra.eventcnt = events.length;
                             lastEvent = events[events.length - 1];
                         }
                     }
                 }
             }
             //update finish time
-            node_data.extra.timer.finish = new Date().toJSON();
-            node_data.extra.timer.isDone = true;
-            node_data.extra.events = lastEvent;
-            var data = [{ 'path': '/extra', 'value': node_data.extra, 'op': 'replace' }];
-            return (data);
+            nodeData.extra.timer.finish = new Date().toJSON();
+            nodeData.extra.timer.isDone = true;
+            nodeData.extra.events = lastEvent;
+            var data = [
+                {
+                    'path': '/extra',
+                    'value': nodeData.extra,
+                    'op': 'replace'
+                }];
+            return data;
         })
         .catch(function (err) {
             logger.error(err);
-            return (null);
+            return null;
         });
-    }
+    };
 
     Poller.prototype.getSeldata = function (identifier) {
         return monorail.request_poller_get(identifier).
         then(function (pollers) {
             if (typeof pollers !== 'undefined') {
                 pollers = JSON.parse(pollers);
-                for (var i in pollers) {
-                    if (pollers[i]['config']['command'] === 'sel') {
-                        return monorail.request_poller_data_get(pollers[i]['id']).
-                        then(function (data) {
-                            return (data);
+                return Promise.filter(pollers, function (poller) {
+                    return poller.config.command === 'sel';
+                })
+                .then(function (sel) {
+                    if (sel.length > 0) {
+                        return monorail.request_poller_data_get(sel[0].id)
+                        .then(function (data) {
+                            return data;
                         })
                         .catch(function (e) {
                             logger.error(e);
                         });
                     }
-                }
-                return (null);
+                });
             }
-            else {
-                return (null);
-            }
+            return null;
         })
         .catch(function (err) {
             logger.error(err);
-            return (null);
+            return null;
         });
-    }
+    };
 
     Poller.prototype.startServer = function () {
         var self = this;
@@ -175,13 +183,12 @@ function Poller(timeInterval) {
                 .then(function (token) {
                     return self.getNodes(token);
                 })
-                .then(function (ironic_nodes) {
-                    return self.runPoller(ironic_nodes);
+                .then(function (ironicNodes) {
+                    return self.runPoller(ironicNodes);
                 });
             }, self._timeInterval);
-        }
-        catch (err) {
+        } catch (err) {
             logger.error(err);
-        };
+        }
     };
 }
