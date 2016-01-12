@@ -16,8 +16,8 @@ describe('****Monorail Lib****',function(){
     var rackhdNode =[ { workflows: [], autoDiscover: false, identifiers: ["2c:60:0c:83:f5:d1"], name: "2c:60:0c:83:f5:d1", sku: null, type: "compute", id: "5668b6ad8bee16a10989e4e5" }];
     var identifier = '123456789';
 
-    describe('monorail nodeDiskSize get_node_memory_cpu', function () {
-        describe('monorail get_node_memory_cpu', function () {
+    describe('monorail nodeDiskSize getNodeMemoryCpu', function () {
+        describe('monorail getNodeMemoryCpu', function () {
             afterEach('teardown mocks', function () {
                 //monorail       
                 monorail['get_catalog_data_by_source'].restore();
@@ -25,7 +25,7 @@ describe('****Monorail Lib****',function(){
 
             it('response should returns an integer with value equal to memory size 2000MB and cpus=2', function (done) {
                 sinon.stub(monorail, 'get_catalog_data_by_source').returns(Promise.resolve(JSON.stringify(catalogSource[0])));
-                return monorail.get_node_memory_cpu(rackhdNode).
+                return monorail.getNodeMemoryCpu(rackhdNode).
                 then(function (result) {
                     result.cpus.should.be.exactly(2);
                     result.memory.should.be.exactly(2000);

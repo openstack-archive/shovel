@@ -1,34 +1,35 @@
 {
-    "name": "",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "keywords": [
-        "swagger"
-    ],
-    "license": "MIT",
-    "private": true,
-    "dependencies": {
-        "connect": "^3.2.0",
-        "swagger-tools": "0.8.*",
-        "bluebird": ""
-    },
-    "devDependencies": {
-        "should": "~7.0.1",
-        "mocha": "^2.1.0",
-        "sinon": "1.16.1",
-        "supertest": "^0.15.0",
-        "underscore": "^1.8.3",
-        "xunit-file": "0.0.6",
-        "winston": "2.1.1",
-        "jsonfile": "2.2.3",
-        "crypto": "0.0.3",
-        "istanbul": "0.4.1",
-        "nock":  "3.6.0"
-    },
-    "scripts": {
-        "postinstall": "scripts/post-install.sh",
-        "start": "start shovel",
-        "test": "istanbul cover -x '**/test/**' node_modules/mocha/bin/_mocha test/api/* test/services/* test/controllers/* && istanbul report cobertura"
-    }
+  "name": "Shovel",
+  "version": "1.0.0",
+  "description": "RackHD-OpenStack Coordinator",
+  "main": "main.js",
+  "keywords": [
+    "swagger"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "bluebird": "3.1.1",
+    "connect": "^3.2.0",
+    "swagger-tools": "0.8.*"
+  },
+  "devDependencies": {
+    "should": "~7.0.1",
+    "mocha": "^2.1.0",
+    "sinon": "1.16.1",
+    "supertest": "^0.15.0",
+    "underscore": "^1.8.3",
+    "xunit-file": "0.0.6",
+    "winston": "2.1.1",
+    "jsonfile": "2.2.3",
+    "crypto": "0.0.3",
+    "istanbul": "0.4.1",
+    "nock": "3.6.0",
+    "eslint-config-openstack": "~1.2.3",
+    "eslint": "~1.10.3"
+  },
+  "scripts": {
+    "postinstall": "scripts/post-install.sh",
+    "start": "start shovel",
+    "test": "istanbul cover -x '**/test/**' node_modules/mocha/bin/_mocha test/api/* test/services/* test/controllers/* && istanbul report cobertura"
+  }
 }

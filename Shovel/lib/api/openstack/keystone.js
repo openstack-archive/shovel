@@ -1,3 +1,6 @@
+// Copyright 2015, EMC, Inc.
+
+/*eslint-env node*/
 /* keystone authentication */
 var config = require('./../../../config.json');
 var client = require('./../client');
@@ -19,15 +22,15 @@ var request = {
 
 var KeystoneAuthentication = {
     authenticatePassword: function (tenantName, username, password) {
+        'use strict';
         var decrypted;
         try {
             decrypted = encryption.decrypt(password);
-        }
-        catch (err) {
+        } catch (err) {
             logger.error(err);
             //return empty promise
-            return (Promise.resolve());
-        };
+            return Promise.resolve();
+        }
         request.data = JSON.stringify(
             {
                 'auth': {
@@ -39,20 +42,21 @@ var KeystoneAuthentication = {
                     }
                 }
             });
-        return (client.PostAsync(request));
+        return client.PostAsync(request);
     },
 
     authenticateToken: function (tenantName, username, token) {
-       request.data = JSON.stringify(
+        'use strict';
+        request.data = JSON.stringify(
             {
-                "auth": {
-                    "tenantName": tenantName,
-                    "token": {
-                        "id": token
+                'auth': {
+                    'tenantName': tenantName,
+                    'token': {
+                        'id': token
                     }
                 }
             });
-        return (client.PostAsync(request));
+        return client.PostAsync(request);
     }
-}
+};
 module.exports = Object.create(KeystoneAuthentication);

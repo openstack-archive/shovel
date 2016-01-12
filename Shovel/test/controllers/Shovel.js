@@ -52,7 +52,7 @@ describe('****SHOVEL API Interface****', function () {
             sinon.stub(monorail, 'request_poller_data_get').returns(Promise.resolve(JSON.stringify(_sel)));
             sinon.stub(monorail, 'request_whitelist_del').returns(Promise.resolve(''));
             sinon.stub(monorail, 'nodeDiskSize').returns(Promise.resolve(0));
-            sinon.stub(monorail, 'get_node_memory_cpu').returns(Promise.resolve(dmiData));
+            sinon.stub(monorail, 'getNodeMemoryCpu').returns(Promise.resolve(dmiData));
             sinon.stub(monorail, 'get_catalog_data_by_source').returns(Promise.resolve(JSON.stringify(catalogSource[0])));
             //glance
             sinon.stub(glance, 'get_images').returns(Promise.resolve(JSON.stringify(glanceImages)));
@@ -77,7 +77,7 @@ describe('****SHOVEL API Interface****', function () {
             monorail['lookupCatalog'].restore();
             monorail['request_whitelist_del'].restore();
             monorail['nodeDiskSize'].restore();
-            monorail['get_node_memory_cpu'].restore();
+            monorail['getNodeMemoryCpu'].restore();
             monorail['get_catalog_data_by_source'].restore();
             //ironic
             ironic['patch_node'].restore();
@@ -506,7 +506,7 @@ describe('****SHOVEL API Interface****', function () {
         afterEach('teardown mocks', function () {
             //monorail
             monorail['nodeDiskSize'].restore();
-            monorail['get_node_memory_cpu'].restore();
+            monorail['getNodeMemoryCpu'].restore();
             monorail['request_node_get'].restore();
             //keystone
             keystone['authenticatePassword'].restore();
@@ -517,7 +517,7 @@ describe('****SHOVEL API Interface****', function () {
         it('response in register should have property error_message when any of node info equal to 0 ', function (done) {
             sinon.stub(monorail, 'request_node_get').returns(Promise.resolve(JSON.stringify(rackhdNode[0])));
             sinon.stub(monorail, 'nodeDiskSize').returns(Promise.resolve(0));
-            sinon.stub(monorail, 'get_node_memory_cpu').returns(Promise.resolve({ cpus: 0, memory: 0 }));
+            sinon.stub(monorail, 'getNodeMemoryCpu').returns(Promise.resolve({ cpus: 0, memory: 0 }));
 
             request(url)
              .post('/api/1.1/register')
@@ -535,7 +535,7 @@ describe('****SHOVEL API Interface****', function () {
         it('response in register should have property error_message create node return error in ironic', function (done) {
             sinon.stub(monorail, 'request_node_get').returns(Promise.resolve(JSON.stringify(rackhdNode[0])));
             sinon.stub(monorail, 'nodeDiskSize').returns(Promise.resolve(1));
-            sinon.stub(monorail, 'get_node_memory_cpu').returns(Promise.resolve({ cpus: 1, memory: 1 }));
+            sinon.stub(monorail, 'getNodeMemoryCpu').returns(Promise.resolve({ cpus: 1, memory: 1 }));
 
             request(url)
              .post('/api/1.1/register')
