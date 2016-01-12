@@ -406,8 +406,7 @@ module.exports.registerpost = function registerpost(req, res) {
             });
         });
     })
-    .then(function (whitelist) {
-        logger.info(whitelist);
+    .then(function () {
         res.setHeader('Content-Type', 'application/json');
         var success = {
             result: 'success'

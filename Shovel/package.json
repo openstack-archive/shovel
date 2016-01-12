@@ -7,11 +7,10 @@
     "swagger"
   ],
   "license": "MIT",
-  "private": true,
   "dependencies": {
     "connect": "^3.2.0",
     "swagger-tools": "0.8.*",
-    "bluebird": ""
+    "bluebird": "3.1.1"
   },
   "devDependencies": {
     "should": "~7.0.1",
