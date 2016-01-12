@@ -12,7 +12,7 @@ alt="Shovel" width="240" height="180" border="10" /></a>
 -  Use [RackHD: Quick Setup](http://rackhd.readthedocs.org/en/latest/getting_started.html) to install  [RackHD](https://github.com/RackHD/RackHD).
 - Use Devstack to [Deploy Openstack](http://docs.openstack.org/developer/ironic/dev/dev-quickstart.html#deploying-ironic-with-devstack) to a single machine.
 - Shovel-Horizon consists of two repositories:
-  - Service Application called [Shovel](https://github.com/keedya/Shovel), serves as [RackHD](https://github.com/RackHD/RackHD)/[Ironic](https://wiki.openstack.org/wiki/Ironic) coordinator (Readme [Instructions](https://github.com/keedya/Shovel-horizon/blob/master/README.md) to setup the service). 
+  - Service Application called [Shovel](https://github.com/keedya/Shovel), serves as [RackHD](https://github.com/RackHD/RackHD)/[Ironic](https://wiki.openstack.org/wiki/Ironic) coordinator (Readme [Instructions](https://github.com/keedya/Shovel/blob/master/shovel_instructions.md) to setup the service). 
   - [Shovel Horizon](https://github.com/keedya/shovel-horizon-plugin) Plug-in ( [Instructions](https://github.com/keedya/shovel-horizon-plugin/blob/master/README.md) to Deploy plug-in to Horizon interface).
 
 ### System level Diagram
