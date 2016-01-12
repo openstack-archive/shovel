@@ -1,16 +1,16 @@
 {
-  "name": "",
+  "name": "Shovel",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "RackHD-OpenStack Coordinator",
+  "main": "main.js",
   "keywords": [
     "swagger"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "dependencies": {
+    "bluebird": "3.1.1",
     "connect": "^3.2.0",
-    "swagger-tools": "0.8.*",
-    "bluebird": "3.1.1"
+    "swagger-tools": "0.8.*"
   },
   "devDependencies": {
     "should": "~7.0.1",
