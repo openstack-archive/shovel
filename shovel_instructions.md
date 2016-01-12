@@ -1,7 +1,7 @@
 # RackHD/OpenStack Coordinator (shovel)
 
-- git clone https://github.com/keedya/Shovel-horizon.git
-- cd Shovel-horizon
+- git clone https://github.com/keedya/Shovel.git
+- cd Shovel
 - sudo mv Shovel /var/
 - cd /var/Shovel
 - sudo npm install --unsafe-perm
@@ -10,9 +10,9 @@
 
 ## Shovel-Ironic Set info Example:
 
-![alt text](https://github.com/keedya/Shovel-horizon/blob/master/Shovel/snapshot/ironic_info.png)
+![alt text](https://github.com/keedya/shovel/blob/master/snapshot/ironic_info.png)
 
 ## Shovel Set Port Example:
 
-![alt text](https://github.com/keedya/Shovel-horizon/blob/master/Shovel/snapshot/shovel_settings.png)
+![alt text](https://github.com/keedya/shovel/blob/master/snapshot/shovel_settings.png)
 
