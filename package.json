@@ -30,6 +30,7 @@
   "scripts": {
     "postinstall": "scripts/post-install.sh",
     "start": "start shovel",
-    "test": "istanbul cover -x '**/test/**' node_modules/mocha/bin/_mocha test/api/* test/services/* test/controllers/* && istanbul report cobertura"
+    "test": "istanbul cover -x '**/test/**' node_modules/mocha/bin/_mocha test/api/* test/services/* test/controllers/* && istanbul report cobertura",
+    "lint": "./node_modules/eslint/bin/eslint.js controllers/Shovel.js lib/*"
   }
 }
