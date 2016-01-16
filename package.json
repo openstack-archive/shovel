@@ -1,5 +1,5 @@
 {
-  "name": "Shovel",
+  "name": "node-shovel",
   "version": "1.0.0",
   "description": "RackHD-OpenStack Coordinator",
   "main": "main.js",
@@ -28,7 +28,6 @@
     "eslint": "~1.10.3"
   },
   "scripts": {
-    "postinstall": "scripts/post-install.sh",
     "start": "start shovel",
     "test": "istanbul cover -x '**/test/**' node_modules/mocha/bin/_mocha test/api/* test/services/* test/controllers/* && istanbul report cobertura",
     "lint": "./node_modules/eslint/bin/eslint.js controllers/Shovel.js lib/*"
