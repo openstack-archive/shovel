@@ -1,6 +1,6 @@
 {
   "name": "node-shovel",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "RackHD-OpenStack Coordinator",
   "main": "main.js",
   "keywords": [
@@ -10,9 +10,7 @@
   "dependencies": {
     "bluebird": "3.1.1",
     "connect": "^3.2.0",
-    "swagger-tools": "0.8.*"
-  },
-  "devDependencies": {
+    "swagger-tools": "0.8.*",
     "should": "~7.0.1",
     "mocha": "^2.1.0",
     "sinon": "1.16.1",
