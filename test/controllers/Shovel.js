@@ -41,7 +41,7 @@ describe('****SHOVEL API Interface****', function () {
     });
     describe('Shovel api unit testing', function () {
         var dmiData = { cpus: 1, memory: 1 };
-
+        var getWorkflow;
         beforeEach('set up mocks', function () {
             //monorail
             sinon.stub(monorail, 'request_node_get').returns(Promise.resolve(JSON.stringify(rackhdNode[0])));
@@ -54,6 +54,8 @@ describe('****SHOVEL API Interface****', function () {
             sinon.stub(monorail, 'nodeDiskSize').returns(Promise.resolve(0));
             sinon.stub(monorail, 'getNodeMemoryCpu').returns(Promise.resolve(dmiData));
             sinon.stub(monorail, 'get_catalog_data_by_source').returns(Promise.resolve(JSON.stringify(catalogSource[0])));
+            sinon.stub(monorail, 'runWorkFlow').returns(Promise.resolve('{"definition":{}}'));
+            getWorkflow = sinon.stub(monorail,'getWorkFlowActive');
             //glance
             sinon.stub(glance, 'get_images').returns(Promise.resolve(JSON.stringify(glanceImages)));
             //keystone
@@ -79,6 +81,8 @@ describe('****SHOVEL API Interface****', function () {
             monorail['nodeDiskSize'].restore();
             monorail['getNodeMemoryCpu'].restore();
             monorail['get_catalog_data_by_source'].restore();
+            monorail['runWorkFlow'].restore();
+            monorail['getWorkFlowActive'].restore();
             //ironic
             ironic['patch_node'].restore();
             ironic['get_node_list'].restore();
@@ -324,6 +328,45 @@ describe('****SHOVEL API Interface****', function () {
                  done();
              });
         });
+        it('/api/1.1/deployos/ should return property definition', function (done) {
+            request(url)
+             .post('/api/1.1/deployos/123')
+             .send({"name": "Graph.InstallCentOS","options": { "defaults": {"obmServiceName": "ipmi-obm-service"}}})
+             .end(function (err, res) {
+                 if (err) {
+                     console.log('hey yo');
+                     throw err;
+                 }
+                 console.log('hello' + res.text)
+                 JSON.parse(res.text).should.have.property('definition');
+                 done();
+             });
+        });
+        it('/api/1.1/worflow-status/{identifier} should return property jobStatus', function (done) {
+            getWorkflow.returns(Promise.resolve('{"node":"123", "_status": "valid"}'))
+            request(url)
+             .get('/api/1.1/worflow-status/123')
+             .end(function (err, res) {
+                 if (err) {
+                     throw err;
+                 }
+                 console.log(res.text);
+                 JSON.parse(res.text).should.have.property('jobStatus');
+                 done();
+             });
+        });
+        it('/api/1.1/worflow-status/{identifier} should return property jobStatus even if no job is running', function (done) {
+            getWorkflow.returns(Promise.resolve());
+            request(url)
+             .get('/api/1.1/worflow-status/123')
+             .end(function (err, res) {
+                 if (err) {
+                     throw err;
+                 }
+                 JSON.parse(res.text).should.have.property('jobStatus');
+                 done();
+             });
+        });
 
     });
 
@@ -481,6 +524,31 @@ describe('****SHOVEL API Interface****', function () {
             request(url)
              .patch('/api/1.1/ironic/node/123')
              .send([{}])
+             .expect(200)
+             .end(function (err, res) {
+                 if (err) {
+                     throw err;
+                 }
+                 JSON.parse(res.text).should.have.property('error');
+                 done();
+             });
+        });
+        it('/deployos/{identifier} should return  error message', function (done) {
+            request(url)
+             .post('/api/1.1/deployos/123')
+             .send([{}])
+             .expect(200)
+             .end(function (err, res) {
+                 if (err) {
+                     throw err;
+                 }
+                 JSON.parse(res.text).should.have.property('error');
+                 done();
+             });
+        });
+        it('/worflow-status/{identifier} should return  error message', function (done) {
+            request(url)
+             .get('/api/1.1/worflow-status/123')
              .expect(200)
              .end(function (err, res) {
                  if (err) {
