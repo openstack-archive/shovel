@@ -628,3 +628,38 @@ module.exports.imagesGet = function imagesGet(req, res) {
         res.end(JSON.stringify(err));
     });
 };
+/*
+* @api {post} /api/1.1/deployOS/identifier / POST /
+* @apiDescription deploy OS to specific node
+*/
+module.exports.deployOS = function deployOS(req, res) {
+    'use strict';
+    res.setHeader('Content-Type', 'application/json');
+    return monorail.runWorkFlow(req.swagger.params.identifier.value,
+    req.body.name,req.body)
+    .then(function(data) {
+        res.end(data);
+    })
+    .catch(function(err) {
+        res.end(JSON.stringify(err));
+    });
+};
+/*
+* @api {get} /api/1.1/workflow-status/identifier / GET /
+* @apiDescription Get status of an active worflow running on a node in rackHD
+*/
+module.exports.workflowStatus = function workflowStatus(req,res) {
+    'use strict';
+    res.setHeader('Content-Type', 'application/json');
+    return monorail.getWorkFlowActive(req.swagger.params.identifier.value)
+    .then(function(data) {
+        if (data) {
+            res.end(JSON.stringify({'jobStatus':'Running'}));
+        } else {
+            res.end(JSON.stringify({'jobStatus':'Currently there is no job running on this node'}));
+        }
+    })
+    .catch(function(err) {
+        res.end(JSON.stringify(err));
+    });
+};

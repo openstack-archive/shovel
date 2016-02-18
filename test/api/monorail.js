@@ -164,5 +164,26 @@ describe('****Monorail Lib****',function(){
                 done();
             });
         });
+        it('monorail.runWorkFlow return data from monorail', function (done) {
+            return monorail.runWorkFlow('123','Graph.Name',{})
+            .then(function (result) {
+                result.should.have.property('data');
+                done();
+            });
+        });
+        it('monorail.getWorkFlowActive return data from monorail', function (done) {
+            return monorail.getWorkFlowActive('123')
+            .then(function (result) {
+                result.should.have.property('data');
+                done();
+            });
+        });
+        it('monorail.deleteWorkFlowActive return data from monorail', function (done) {
+            return monorail.deleteWorkFlowActive('123')
+            .then(function (result) {
+                result.should.have.property('data');
+                done();
+            });
+        });
     });
 });
