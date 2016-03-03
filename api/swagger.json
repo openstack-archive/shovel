@@ -589,6 +589,40 @@
           }
         }
       }
+    },
+    "/run/ansible-playbook/{identifier}": {
+      "post": {
+        "x-swagger-router-controller": "Shovel",
+        "tags": [ "Nodes Provisionning" ],
+        "operationId": "runAnsible",
+        "summary": "run the uploaded ansible playbook",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "description": "rackHD node ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Config",
+            "in": "body",
+            "description": "OS Configuration",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/run-ansible"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Not Implemented"
+          },
+          "default": {
+            "description": "unexpected error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -753,7 +787,7 @@
       "properties": {
         "name": {
           "type": "string",
-          "example":"Graph.InstallCentOS"
+          "example": "Graph.InstallCentOS"
         },
         "options": {
           "type": "object",
@@ -821,6 +855,25 @@
               }
             }
           }
+        }
+      }
+    },
+    "run-ansible": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "runExample"
+        },
+        "vars": {
+          "type": "object"
+        },
+        "playbookPath": {
+          "type": "string",
+          "example": "files/extract/main.yml"
         }
       }
     }

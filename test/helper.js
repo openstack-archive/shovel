@@ -1,6 +1,6 @@
 // Copyright 2015, EMC, Inc.
 
-var app = require('connect')();
+var app = require('express')();
 var http = require('http');
 var swaggerTools = require('swagger-tools');
 var sinon = require('sinon');

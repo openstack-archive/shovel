@@ -56,6 +56,8 @@ describe('****SHOVEL API Interface****', function () {
             sinon.stub(monorail, 'get_catalog_data_by_source').returns(Promise.resolve(JSON.stringify(catalogSource[0])));
             sinon.stub(monorail, 'runWorkFlow').returns(Promise.resolve('{"definition":{}}'));
             getWorkflow = sinon.stub(monorail,'getWorkFlowActive');
+            sinon.stub(monorail, 'createTask').returns(Promise.resolve());
+            sinon.stub(monorail, 'createWorkflow').returns(Promise.resolve());
             //glance
             sinon.stub(glance, 'get_images').returns(Promise.resolve(JSON.stringify(glanceImages)));
             //keystone
@@ -83,6 +85,8 @@ describe('****SHOVEL API Interface****', function () {
             monorail['get_catalog_data_by_source'].restore();
             monorail['runWorkFlow'].restore();
             monorail['getWorkFlowActive'].restore();
+            monorail['createTask'].restore();
+            monorail['createWorkflow'].restore();
             //ironic
             ironic['patch_node'].restore();
             ironic['get_node_list'].restore();
@@ -334,10 +338,8 @@ describe('****SHOVEL API Interface****', function () {
              .send({"name": "Graph.InstallCentOS","options": { "defaults": {"obmServiceName": "ipmi-obm-service"}}})
              .end(function (err, res) {
                  if (err) {
-                     console.log('hey yo');
                      throw err;
                  }
-                 console.log('hello' + res.text)
                  JSON.parse(res.text).should.have.property('definition');
                  done();
              });
@@ -350,8 +352,19 @@ describe('****SHOVEL API Interface****', function () {
                  if (err) {
                      throw err;
                  }
-                 console.log(res.text);
                  JSON.parse(res.text).should.have.property('jobStatus');
+                 done();
+             });
+        });
+        it('/api/1.1/run/ansible-playbook/{id} should return property definition', function (done) {
+            request(url)
+             .post('/api/1.1/run/ansible-playbook/123')
+             .send({"name": "Graph.Example","options": {}})
+             .end(function (err, res) {
+                 if (err) {
+                     throw err;
+                 }
+                 JSON.parse(res.text).should.have.property('definition');
                  done();
              });
         });
@@ -379,10 +392,12 @@ describe('****SHOVEL API Interface****', function () {
             var output = ({ error: 'error_message' });
             sinon.stub(client, 'GetAsync').returns(Promise.reject(output));
             sinon.stub(client, 'PostAsync').returns(Promise.reject(output));
+            sinon.stub(client, 'PutAsync').returns(Promise.reject(output));
         });
         after('teardown mocks', function () {
             client['GetAsync'].restore();
             client['PostAsync'].restore();
+            client['PutAsync'].restore();
         });
 
         it('/api/1.1/nodes/identifier should return  error message', function (done) {
@@ -558,34 +573,92 @@ describe('****SHOVEL API Interface****', function () {
                  done();
              });
         });
+        it('api/1.1/run/ansible-playbook/{id} should return  error message', function (done) {
+            request(url)
+             .post('/api/1.1/run/ansible-playbook/123')
+             .send({name: 'runExample',vars: {},
+             playbookPath: 'main.yml'
+             })
+             .expect(200)
+             .end(function (err, res) {
+                 if (err) {
+                     throw err;
+                 }
+                 JSON.parse(res.text).should.have.property('error');
+                 done();
+             });
+        });
     });
 
     describe('Shovel api unit test for register', function () {
-        var error_message = '{"error_message": "{\\"debuginfo\\": null, \\"faultcode\\": \\"Client\\", \\"faultstring\\": \\"A node with name 5668b42d8bee16a10989e4e4 already exists.\\"}"}';
+        var error_message = '{"error_message": "{\\"debuginfo\\": null, \\"faultcode\\": \\"Client\\", \\"faultstring\\": \\"some error\\"}"}';
         var body = { "id": identifier, "driver": "string", "ipmihost": "string", "ipmiusername": "string", "ipmipasswd": "string" };
-
+        var getNode, diskSize, memoryCpu, ironicNodeCreate,
+        ironicCreatePort, ironicPowerState, ironicPatch;
         beforeEach('set up mocks', function () {
             //monorail
+            getNode = sinon.stub(monorail, 'request_node_get');
+            diskSize = sinon.stub(monorail, 'nodeDiskSize');
+            memoryCpu = sinon.stub(monorail, 'getNodeMemoryCpu');
+            monorailWhiteList = sinon.stub(monorail,'request_whitelist_set');
             //keystone
             sinon.stub(keystone, 'authenticatePassword').returns(Promise.resolve(JSON.stringify(keyToken)));
             //ironic
-            sinon.stub(ironic, 'create_node').returns(Promise.resolve(error_message));
+            ironicNodeCreate = sinon.stub(ironic, 'create_node');
+            ironicCreatePort = sinon.stub(ironic,'create_port');
+            ironicPowerState = sinon.stub(ironic,'set_power_state');
+            ironicPatch = sinon.stub(ironic, 'patch_node');
         });
         afterEach('teardown mocks', function () {
             //monorail
             monorail['nodeDiskSize'].restore();
             monorail['getNodeMemoryCpu'].restore();
             monorail['request_node_get'].restore();
+            monorail['request_whitelist_set'].restore();
             //keystone
             keystone['authenticatePassword'].restore();
             //ironic
             ironic['create_node'].restore();
-
+            ironic['create_port'].restore();
+            ironic['set_power_state'].restore();
+            ironic['patch_node'].restore();
+        });
+        it('response in register should have property error_message when node returns empty ', function (done) {
+            getNode.returns(Promise.resolve('{}'));
+            request(url)
+             .post('/api/1.1/register')
+             .send(body)
+             .expect('Content-Type', /json/)
+             .expect(200)
+             .end(function (err, res) {
+                 if (err) {
+                     throw err;
+                 }
+                 JSON.parse(res.text).should.have.property('error_message');
+                 done();
+             });
+        });
+        it('response in register should have property error_message when diskSize has an exception ', function (done) {
+            var output = {error_message: { message: 'failed to get compute node Disk Size' }};
+            getNode.returns(Promise.resolve(JSON.stringify(rackhdNode[0])));
+            diskSize.returns(Promise.reject(output));
+            request(url)
+             .post('/api/1.1/register')
+             .send(body)
+             .expect('Content-Type', /json/)
+             .expect(200)
+             .end(function (err, res) {
+                 if (err) {
+                     throw err;
+                 }
+                 JSON.parse(res.text).should.have.property('error_message');
+                 done();
+             });
         });
         it('response in register should have property error_message when any of node info equal to 0 ', function (done) {
-            sinon.stub(monorail, 'request_node_get').returns(Promise.resolve(JSON.stringify(rackhdNode[0])));
-            sinon.stub(monorail, 'nodeDiskSize').returns(Promise.resolve(0));
-            sinon.stub(monorail, 'getNodeMemoryCpu').returns(Promise.resolve({ cpus: 0, memory: 0 }));
+            getNode.returns(Promise.resolve(JSON.stringify(rackhdNode[0])));
+            diskSize.returns(Promise.resolve(0));
+            memoryCpu.returns(Promise.resolve({ cpus: 0, memory: 0 }));
 
             request(url)
              .post('/api/1.1/register')
@@ -601,10 +674,10 @@ describe('****SHOVEL API Interface****', function () {
              });
         });
         it('response in register should have property error_message create node return error in ironic', function (done) {
-            sinon.stub(monorail, 'request_node_get').returns(Promise.resolve(JSON.stringify(rackhdNode[0])));
-            sinon.stub(monorail, 'nodeDiskSize').returns(Promise.resolve(1));
-            sinon.stub(monorail, 'getNodeMemoryCpu').returns(Promise.resolve({ cpus: 1, memory: 1 }));
-
+            getNode.returns(Promise.resolve(JSON.stringify(rackhdNode[0])));
+            diskSize.returns(Promise.resolve(1));
+            memoryCpu.returns(Promise.resolve({ cpus: 1, memory: 1 }));
+            ironicNodeCreate.returns(Promise.resolve(error_message));
             request(url)
              .post('/api/1.1/register')
              .send(body)
@@ -615,6 +688,87 @@ describe('****SHOVEL API Interface****', function () {
                      throw err;
                  }
                  JSON.parse(res.text).should.have.property('error_message');
+                 done();
+             });
+        });
+        it('response in register should have property error_message create port return error in ironic', function (done) {
+            getNode.returns(Promise.resolve(JSON.stringify(rackhdNode[0])));
+            diskSize.returns(Promise.resolve(1));
+            memoryCpu.returns(Promise.resolve({ cpus: 1, memory: 1 }));
+            ironicNodeCreate.returns(Promise.resolve(JSON.stringify(ironic_node_list[0])));
+            ironicCreatePort.returns(Promise.resolve(error_message));
+            request(url)
+             .post('/api/1.1/register')
+             .send(body)
+             .expect('Content-Type', /json/)
+             .expect(200)
+             .end(function (err, res) {
+                 if (err) {
+                     throw err;
+                 }
+                 JSON.parse(res.text).should.have.property('error_message');
+                 done();
+             });
+        });
+        it('response in register should have property error_message set power state return error in ironic', function (done) {
+            getNode.returns(Promise.resolve(JSON.stringify(rackhdNode[0])));
+            diskSize.returns(Promise.resolve(1));
+            memoryCpu.returns(Promise.resolve({ cpus: 1, memory: 1 }));
+            ironicNodeCreate.returns(Promise.resolve(JSON.stringify(ironic_node_list[0])));
+            ironicCreatePort.returns(Promise.resolve());
+            ironicPowerState.returns(Promise.resolve(error_message));
+            request(url)
+             .post('/api/1.1/register')
+             .send(body)
+             .expect('Content-Type', /json/)
+             .expect(200)
+             .end(function (err, res) {
+                 if (err) {
+                     throw err;
+                 }
+                 JSON.parse(res.text).should.have.property('error_message');
+                 done();
+             });
+        });
+        it('response in register should have property error_message ironic patch node return error in ironic', function (done) {
+            getNode.returns(Promise.resolve(JSON.stringify(rackhdNode[0])));
+            diskSize.returns(Promise.resolve(1));
+            memoryCpu.returns(Promise.resolve({ cpus: 1, memory: 1 }));
+            ironicNodeCreate.returns(Promise.resolve(JSON.stringify(ironic_node_list[0])));
+            ironicCreatePort.returns(Promise.resolve());
+            ironicPowerState.returns(Promise.resolve());
+            ironicPatch.returns(Promise.reject({error_message:'some error'}));
+            request(url)
+             .post('/api/1.1/register')
+             .send(body)
+             .expect('Content-Type', /json/)
+             .expect(200)
+             .end(function (err, res) {
+                 if (err) {
+                     throw err;
+                 }
+                 JSON.parse(res.text).should.have.property('error_message');
+                 done();
+             });
+        });
+        it('response in register should have property result on success', function (done) {
+            getNode.returns(Promise.resolve(JSON.stringify(rackhdNode[0])));
+            diskSize.returns(Promise.resolve(1));
+            memoryCpu.returns(Promise.resolve({ cpus: 1, memory: 1 }));
+            ironicNodeCreate.returns(Promise.resolve(JSON.stringify(ironic_node_list[0])));
+            ironicCreatePort.returns(Promise.resolve());
+            ironicPowerState.returns(Promise.resolve());
+            ironicPatch.returns(Promise.resolve());
+            request(url)
+             .post('/api/1.1/register')
+             .send(body)
+             .expect('Content-Type', /json/)
+             .expect(200)
+             .end(function (err, res) {
+                 if (err) {
+                     throw err;
+                 }
+                 JSON.parse(res.text).should.have.property('result');
                  done();
              });
         });

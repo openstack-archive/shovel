@@ -278,20 +278,20 @@ module.exports.registerpost = function registerpost(req, res) {
     userEntry = req.body;
     if (userEntry.driver === 'pxe_ipmitool') {
         info = {
-            'ipmi_address': userEntry.ipmihost,
-            'ipmi_username': userEntry.ipmiuser,
-            'ipmi_password': userEntry.ipmipass,
-            'deploy_kernel': userEntry.kernel,
-            'deploy_ramdisk': userEntry.ramdisk
+            ipmi_address: userEntry.ipmihost,
+            ipmi_username: userEntry.ipmiuser,
+            ipmi_password: userEntry.ipmipass,
+            deploy_kernel: userEntry.kernel,
+            deploy_ramdisk: userEntry.ramdisk
         };
     } else if (userEntry.driver === 'pxe_ssh') {
         info = {
-            'ssh_address': userEntry.sshhost,
-            'ssh_username': userEntry.sshuser,
-            'ssh_password': userEntry.sshpass,
-            'ssh_port': userEntry.sshport,
-            'deploy_kernel': userEntry.kernel,
-            'deploy_ramdisk': userEntry.ramdisk
+            ssh_address: userEntry.sshhost,
+            ssh_username: userEntry.sshuser,
+            ssh_password: userEntry.sshpass,
+            ssh_port: userEntry.sshport,
+            deploy_kernel: userEntry.kernel,
+            deploy_ramdisk: userEntry.ramdisk
         };
     } else {
         info = {};
@@ -299,11 +299,11 @@ module.exports.registerpost = function registerpost(req, res) {
 
     /* Fill in the extra meta data with some failover and event data */
     extra = {
-        'nodeid': userEntry.uuid,
-        'name': userEntry.name,
-        'lsevents': { 'time': 0 },
-        'eventcnt': 0,
-        'timer': {}
+        nodeid: userEntry.uuid,
+        name: userEntry.name,
+        lsevents: { time: 0 },
+        eventcnt: 0,
+        timer: {}
     };
     if (typeof userEntry.failovernode !== 'undefined') {
         extra.failover = userEntry.failovernode;
@@ -315,7 +315,7 @@ module.exports.registerpost = function registerpost(req, res) {
     localGb = 0.0;
     return monorail.request_node_get(userEntry.uuid).
     then(function (result) {
-        if (!JSON.parse(result).name) {
+        if (!JSON.parse(result).hasOwnProperty('name')) {
             var error = { error_message: { message: 'failed to find required node in RackHD' } };
             logger.error(error);
             throw error;
@@ -349,16 +349,16 @@ module.exports.registerpost = function registerpost(req, res) {
             throw error;
         }
         propreties = {
-            'cpus': dmiData.cpus,
-            'memory_mb': dmiData.memory,
-            'local_gb': localGb
+            cpus: dmiData.cpus,
+            memory_mb: dmiData.memory,
+            local_gb: localGb
         };
         node = {
-            'name': userEntry.uuid,
-            'driver': userEntry.driver,
-            'driver_info': info,
-            'properties': propreties,
-            'extra': extra
+            name: userEntry.uuid,
+            driver: userEntry.driver,
+            driver_info: info,
+            properties: propreties,
+            extra: extra
         };
         return keystone.authenticatePassword(ironicConfig.os_tenant_name, ironicConfig.os_username,
             ironicConfig.os_password);
@@ -373,10 +373,13 @@ module.exports.registerpost = function registerpost(req, res) {
             throw JSON.parse(ret);
         }
         ironicNode = JSON.parse(ret);
-        port = { 'address': userEntry.port, 'node_uuid': ironicNode.uuid };
-        return ironic.createPort(ironicToken, JSON.stringify(port));
+        port = { address: userEntry.port, node_uuid: ironicNode.uuid };
+        return ironic.create_port(ironicToken, JSON.stringify(port));
     }).
     then(function (createPort) {
+        if (createPort && JSON.parse(createPort).error_message) {
+            throw JSON.parse(createPort);
+        }
         logger.info('\r\nCreate port:\r\n' + JSON.stringify(createPort));
         return ironic.set_power_state(ironicToken, ironicNode.uuid, 'on');
     }).
@@ -392,7 +395,7 @@ module.exports.registerpost = function registerpost(req, res) {
         timer.stop = false;
         timer.timeInterval = 15000;
         timer.isDone = true;
-        var data = [{ 'path': '/extra/timer', 'value': timer, 'op': 'replace' }];
+        var data = [{ path: '/extra/timer', value: timer, op: 'replace' }];
         return ironic.patch_node(ironicToken, ironicNode.uuid, JSON.stringify(data));
     }).
     then(function (result) {
@@ -637,8 +640,8 @@ module.exports.deployOS = function deployOS(req, res) {
     res.setHeader('Content-Type', 'application/json');
     return monorail.runWorkFlow(req.swagger.params.identifier.value,
     req.body.name,req.body)
-    .then(function(data) {
-        res.end(data);
+    .then(function(result) {
+        res.end(result);
     })
     .catch(function(err) {
         res.end(JSON.stringify(err));
@@ -654,10 +657,77 @@ module.exports.workflowStatus = function workflowStatus(req,res) {
     return monorail.getWorkFlowActive(req.swagger.params.identifier.value)
     .then(function(data) {
         if (data) {
-            res.end(JSON.stringify({'jobStatus':'Running'}));
+            res.end(JSON.stringify({jobStatus:'Running'}));
         } else {
-            res.end(JSON.stringify({'jobStatus':'Currently there is no job running on this node'}));
+            res.end(JSON.stringify({jobStatus:'Currently there is no job running on this node'}));
         }
+    })
+    .catch(function(err) {
+        res.end(JSON.stringify(err));
+    });
+};
+/*
+* @api {put} /api/1.1/uploadFiles/filename / PUT /
+* @apiDescription uploaded ansible playbook in tar form and extract it
+*/
+//Code for tar file uploads
+// module.exports.uploadFiles = function uploadFiles(req, res) {
+//     'use strict';
+//     res.setHeader('content-type', 'text/plain');
+//     var tar = require('tar');
+//     var extractor = tar.Extract({path: 'files/extract'})
+//     .on('error', function(err) {
+//         logger.error(err);
+//         res.status(500);
+//         res.end('error');
+//     })
+//     .on('end', function() {
+//         res.status(202);
+//         res.end('success');
+//     });
+//     var stream = require('stream');
+//     var bufferStream = new stream.PassThrough();
+//     bufferStream.end(new Buffer(req.swagger.params.playbook.value.buffer));
+//     bufferStream.pipe(extractor);
+// };
+
+/*
+* @api {post} /api/1.1/runAnsible/{identifier} / POST /
+* @apiDescription run uploaded ansible playbook in tar form and extract it
+*/
+module.exports.runAnsible = function runAnsible(req, res) {
+    'use strict';
+    res.setHeader('Content-Type', 'application/json');
+    var ansibleTask = {
+        friendlyName: req.body.name,
+        injectableName: 'Task.Ansible.' + req.body.name,
+        implementsTask: 'Task.Base.Ansible',
+        options: {
+            playbook: req.body.playbookPath,
+            vars : req.body.vars
+        },
+        properties: { }
+    };
+    var ansibleWorkflow = {
+        friendlyName: 'Graph ' + req.body.name,
+        injectableName: 'Graph.Ansible.' + req.body.name,
+        tasks : [
+            {
+                label: 'ansible-job',
+                taskName: 'Task.Ansible.' + req.body.name
+            }
+        ]
+    };
+    return monorail.createTask(ansibleTask)
+    .then(function() {
+        return monorail.createWorkflow(ansibleWorkflow);
+    })
+    .then(function() {
+        return monorail.runWorkFlow(req.swagger.params.identifier.value,
+        'Graph.Ansible.' + req.body.name,null);
+    })
+    .then(function(result) {
+        res.end(result);
     })
     .catch(function(err) {
         res.end(JSON.stringify(err));
