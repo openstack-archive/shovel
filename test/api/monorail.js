@@ -185,5 +185,19 @@ describe('****Monorail Lib****',function(){
                 done();
             });
         });
+        it('monorail.createWorkflow return data from monorail', function (done) {
+            return monorail.createWorkflow({})
+            .then(function (result) {
+                result.should.have.property('data');
+                done();
+            });
+        });
+        it('monorail.createTask return data from monorail', function (done) {
+            return monorail.createTask({})
+            .then(function (result) {
+                result.should.have.property('data');
+                done();
+            });
+        });
     });
 });

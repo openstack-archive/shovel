@@ -9,7 +9,6 @@
   "license": "Apache-2.0",
   "dependencies": {
     "bluebird": "3.1.1",
-    "connect": "^3.2.0",
     "swagger-tools": "0.8.*",
     "should": "~7.0.1",
     "mocha": "^2.1.0",
@@ -23,7 +22,9 @@
     "istanbul": "0.4.1",
     "nock": "3.6.0",
     "eslint-config-openstack": "~1.2.3",
-    "eslint": "~1.10.3"
+    "eslint": "~1.10.3",
+    "express": "~4.13.4",
+    "tar": "~2.2.1"
   },
   "scripts": {
     "start": "start shovel",

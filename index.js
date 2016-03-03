@@ -1,7 +1,7 @@
 /* global process */
 'use strict';
 
-var app = require('connect')();
+var app = require('express')();
 var http = require('http');
 var swaggerTools = require('swagger-tools');
 var config = require('./config.json');
