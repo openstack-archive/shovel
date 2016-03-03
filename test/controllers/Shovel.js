@@ -334,10 +334,8 @@ describe('****SHOVEL API Interface****', function () {
              .send({"name": "Graph.InstallCentOS","options": { "defaults": {"obmServiceName": "ipmi-obm-service"}}})
              .end(function (err, res) {
                  if (err) {
-                     console.log('hey yo');
                      throw err;
                  }
-                 console.log('hello' + res.text)
                  JSON.parse(res.text).should.have.property('definition');
                  done();
              });
@@ -350,7 +348,6 @@ describe('****SHOVEL API Interface****', function () {
                  if (err) {
                      throw err;
                  }
-                 console.log(res.text);
                  JSON.parse(res.text).should.have.property('jobStatus');
                  done();
              });
