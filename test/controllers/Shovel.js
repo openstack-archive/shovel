@@ -515,7 +515,7 @@ describe('****SHOVEL API Interface****', function () {
              .post('/api/1.1/register')
              .send(body)
              .expect('Content-Type', /json/)
-             .expect(200)
+             .expect(500)
              .end(function (err, res) {
                  if (err) {
                      throw err;
@@ -539,7 +539,7 @@ describe('****SHOVEL API Interface****', function () {
             request(url)
              .patch('/api/1.1/ironic/node/123')
              .send([{}])
-             .expect(200)
+             .expect(500)
              .end(function (err, res) {
                  if (err) {
                      throw err;
@@ -552,7 +552,7 @@ describe('****SHOVEL API Interface****', function () {
             request(url)
              .post('/api/1.1/deployos/123')
              .send([{}])
-             .expect(200)
+             .expect(500)
              .end(function (err, res) {
                  if (err) {
                      throw err;
@@ -564,7 +564,7 @@ describe('****SHOVEL API Interface****', function () {
         it('/worflow-status/{identifier} should return  error message', function (done) {
             request(url)
              .get('/api/1.1/worflow-status/123')
-             .expect(200)
+             .expect(500)
              .end(function (err, res) {
                  if (err) {
                      throw err;
@@ -579,7 +579,7 @@ describe('****SHOVEL API Interface****', function () {
              .send({name: 'runExample',vars: {},
              playbookPath: 'main.yml'
              })
-             .expect(200)
+             .expect(500)
              .end(function (err, res) {
                  if (err) {
                      throw err;
@@ -629,7 +629,7 @@ describe('****SHOVEL API Interface****', function () {
              .post('/api/1.1/register')
              .send(body)
              .expect('Content-Type', /json/)
-             .expect(200)
+             .expect(500)
              .end(function (err, res) {
                  if (err) {
                      throw err;
@@ -646,7 +646,7 @@ describe('****SHOVEL API Interface****', function () {
              .post('/api/1.1/register')
              .send(body)
              .expect('Content-Type', /json/)
-             .expect(200)
+             .expect(500)
              .end(function (err, res) {
                  if (err) {
                      throw err;
@@ -664,7 +664,7 @@ describe('****SHOVEL API Interface****', function () {
              .post('/api/1.1/register')
              .send(body)
              .expect('Content-Type', /json/)
-             .expect(200)
+             .expect(500)
              .end(function (err, res) {
                  if (err) {
                      throw err;
@@ -682,7 +682,7 @@ describe('****SHOVEL API Interface****', function () {
              .post('/api/1.1/register')
              .send(body)
              .expect('Content-Type', /json/)
-             .expect(200)
+             .expect(500)
              .end(function (err, res) {
                  if (err) {
                      throw err;
@@ -701,7 +701,7 @@ describe('****SHOVEL API Interface****', function () {
              .post('/api/1.1/register')
              .send(body)
              .expect('Content-Type', /json/)
-             .expect(200)
+             .expect(500)
              .end(function (err, res) {
                  if (err) {
                      throw err;
@@ -721,7 +721,7 @@ describe('****SHOVEL API Interface****', function () {
              .post('/api/1.1/register')
              .send(body)
              .expect('Content-Type', /json/)
-             .expect(200)
+             .expect(500)
              .end(function (err, res) {
                  if (err) {
                      throw err;
@@ -742,7 +742,7 @@ describe('****SHOVEL API Interface****', function () {
              .post('/api/1.1/register')
              .send(body)
              .expect('Content-Type', /json/)
-             .expect(200)
+             .expect(500)
              .end(function (err, res) {
                  if (err) {
                      throw err;

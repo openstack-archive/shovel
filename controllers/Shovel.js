@@ -45,12 +45,14 @@ module.exports.driversGet = function driversGet(req, res) {
         return ironic.get_driver_list(token);
     }).
     then(function (result) {
+        res.status(ironic.getStatus());
         res.setHeader('Content-Type', 'application/json');
         res.end(result);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -70,11 +72,13 @@ module.exports.ironicnodesGet = function ironicnodesGet(req, res) {
     }).
     then(function (result) {
         res.setHeader('Content-Type', 'application/json');
+        res.status(ironic.getStatus());
         res.end(result);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -94,11 +98,13 @@ module.exports.ironicchassisGet = function ironicchassisGet(req, res) {
     }).
     then(function (result) {
         res.setHeader('Content-Type', 'application/json');
+        res.status(ironic.getStatus());
         res.end(result);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -118,11 +124,13 @@ module.exports.ironicnodeGet = function ironicnodeGet(req, res) {
     }).
     then(function (result) {
         res.setHeader('Content-Type', 'application/json');
+        res.status(ironic.getStatus());
         res.end(result);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -143,11 +151,13 @@ module.exports.ironicnodePatch = function ironicnodePatch(req, res) {
     }).
     then(function (result) {
         res.setHeader('Content-Type', 'application/json');
+        res.status(ironic.getStatus());
         res.end(result);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -162,11 +172,13 @@ module.exports.catalogsGet = function catalogsGet(req, res) {
     return monorail.request_catalogs_get(req.swagger.params.identifier.value).
     then(function (catalogs) {
         res.setHeader('Content-Type', 'application/json');
+        res.status(monorail.getStatus());
         res.end(catalogs);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -182,11 +194,13 @@ module.exports.catalogsbysourceGet = function catalogsbysourceGet(req, res) {
         req.swagger.params.source.value).
     then(function (catalogs) {
         res.setHeader('Content-Type', 'application/json');
+        res.status(monorail.getStatus());
         res.end(catalogs);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -201,11 +215,13 @@ module.exports.nodeGet = function nodeGet(req, res) {
     return monorail.request_node_get(req.swagger.params.identifier.value).
     then(function (node) {
         res.setHeader('Content-Type', 'application/json');
+        res.status(monorail.getStatus());
         res.end(node);
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -224,11 +240,13 @@ module.exports.nodesGet = function nodesGet(req, res) {
         })
        .then(function (discoveredNodes) {
            res.setHeader('Content-Type', 'application/json');
+           res.status(monorail.getStatus());
            res.end(JSON.stringify(discoveredNodes));
        });
     })
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
+        res.status(500);
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(err));
     });
@@ -252,6 +270,7 @@ module.exports.getSeldata = function getSeldata(req, res,next) {
                 return monorail.request_poller_data_get(sel[0].id)
                 .then(function (data) {
                     res.setHeader('Content-Type', 'application/json');
+                    res.status(monorail.getStatus());
                     res.end(data);
                 });
             }
@@ -261,6 +280,7 @@ module.exports.getSeldata = function getSeldata(req, res,next) {
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -419,6 +439,7 @@ module.exports.registerpost = function registerpost(req, res) {
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -460,6 +481,7 @@ module.exports.unregisterdel = function unregisterdel(req, res) {
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -475,6 +497,7 @@ module.exports.configsetmono = function configsetmono(req, res) {
     if (setConfig('monorail', req.body)) {
         res.end('success');
     } else {
+        res.status(500);
         res.end('failed to update monorail config');
     }
 };
@@ -490,6 +513,7 @@ module.exports.configsetkeystone = function configsetkeystone(req, res) {
     if (setConfig('keystone', req.body)) {
         res.end('success');
     } else {
+        res.status(500);
         res.end('failed to update keystone config');
     }
 };
@@ -515,6 +539,7 @@ module.exports.configsetironic = function configsetironic(req, res) {
     if (setConfig('ironic', req.body)) {
         res.end('success');
     } else {
+        res.status(500);
         res.end('failed to update ironic config');
     }
 };
@@ -540,6 +565,7 @@ module.exports.configsetglance = function configsetglance(req, res) {
     if (setConfig('glance', req.body)) {
         res.end('success');
     } else {
+        res.status(500);
         res.end('failed to update glance config');
     }
 };
@@ -555,6 +581,7 @@ module.exports.configset = function configset(req, res) {
     if (setConfig('shovel', req.body) === true) {
         res.end('success');
     } else {
+        res.status(500);
         res.end('failed to update shovel config');
     }
 };
@@ -604,6 +631,7 @@ module.exports.configget = function configget(req, res) {
         } catch (err) {
             logger.error(err);
             res.setHeader('content-type', 'text/plain');
+            res.status(500);
             res.end('failed to get config');
         }
     });
@@ -628,6 +656,7 @@ module.exports.imagesGet = function imagesGet(req, res) {
     .catch(function (err) {
         logger.error({ message: err, path: req.url });
         res.setHeader('Content-Type', 'application/json');
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -641,9 +670,11 @@ module.exports.deployOS = function deployOS(req, res) {
     return monorail.runWorkFlow(req.swagger.params.identifier.value,
     req.body.name,req.body)
     .then(function(result) {
+        res.status(monorail.getStatus());
         res.end(result);
     })
     .catch(function(err) {
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -656,13 +687,15 @@ module.exports.workflowStatus = function workflowStatus(req,res) {
     res.setHeader('Content-Type', 'application/json');
     return monorail.getWorkFlowActive(req.swagger.params.identifier.value)
     .then(function(data) {
-        if (data) {
+        res.status(monorail.getStatus());
+        if (monorail.getStatus() === 200 && data) {
             res.end(JSON.stringify({jobStatus:'Running'}));
         } else {
             res.end(JSON.stringify({jobStatus:'Currently there is no job running on this node'}));
         }
     })
     .catch(function(err) {
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
@@ -727,9 +760,11 @@ module.exports.runAnsible = function runAnsible(req, res) {
         'Graph.Ansible.' + req.body.name,null);
     })
     .then(function(result) {
+        res.status(monorail.getStatus());
         res.end(result);
     })
     .catch(function(err) {
+        res.status(500);
         res.end(JSON.stringify(err));
     });
 };
