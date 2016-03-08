@@ -1,0 +1,8 @@
+Code-Review+2: Joe Heck <heckj@mac.com>
+Workflow+1: Andre keedy <andre.keedy@emc.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 08 Mar 2016 16:46:41 +0000
+Reviewed-on: https://review.openstack.org/287985
+Project: openstack/shovel
+Branch: refs/heads/master
